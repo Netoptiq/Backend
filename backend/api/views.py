@@ -86,7 +86,7 @@ class DNSLogQueryCountView(APIView):
         # return Response({"total_queries": len(query)}, status=status.HTTP_200_OK)
 
 
-
+###########################################################################################################################
 
 #realtime log
 class LogListAPIView(APIView):
@@ -104,9 +104,15 @@ class Livegraph(APIView):
         
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
+
+     
 class Highlyusedusers(APIView):
     def get(self,request):
         ip_counter = Counter(Query.objects.values_list('ip', flat=True))
-        top_ips = ip_counter.most_common(6)
-        return Response(top_ips)
+        # top_ips = ip_counter.most_common(6)
+        return Response(ip_counter)
+
+class Total_query(APIView):
+    def get(self, request):
+        total_count = Log.objects.count()
+        return Response(total_count)
