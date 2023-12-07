@@ -1,5 +1,19 @@
-2017-12-13T08:16:02.130Z Z123412341234 example.com A NOERROR UDP Region 192.168.1.1 -
-2017-12-13T08:15:50.235Z Z123412341234 example.com AAAA NOERROR TCP Region 192.168.3.1 192.168.222.0/24
-2017-12-13T08:16:03.983Z Z123412341234 example.com ANY NOERROR UDP Region 2001:db8::1234 2001:db8:abcd::/48
-2017-12-13T08:15:50.342Z Z123412341234 bad.example.com A NXDOMAIN UDP Region 192.168.3.1 192.168.111.0/24
-2017-12-13T08:16:05.744Z Z123412341234 txt.example.com TXT NOERROR UDP Region 192.168.1.2 -
+Dec 06 23:00:43 unbound[20715:3] query: 127.0.0.1 ssm.ap-south-1.amazonaws.com. A IN
+Dec 06 23:00:43 unbound[20715:3] reply: 127.0.0.1 ssm.ap-south-1.amazonaws.com. A IN NOERROR 0.000000 1 73
+Dec 06 23:23:58 unbound[20715:0] query: 112.74.38.239 37.876776345.2023-12-06.odns.m.dnsscan.top. A IN
+Dec 06 23:24:00 unbound[20715:0] reply: 112.74.38.239 37.876776345.2023-12-06.odns.m.dnsscan.top. A IN NOERROR 1.489308 0 76
+Dec 06 23:29:48 unbound[20715:0] query: 127.0.0.1 ssm.ap-south-1.amazonaws.com. AAAA IN
+Dec 06 23:29:48 unbound[20715:0] reply: 127.0.0.1 ssm.ap-south-1.amazonaws.com. AAAA IN NOERROR 0.000000 1 138
+Dec 06 23:29:48 unbound[20715:2] query: 127.0.0.1 ssm.ap-south-1.amazonaws.com. A IN
+Dec 06 23:29:48 unbound[20715:2] reply: 127.0.0.1 ssm.ap-south-1.amazonaws.com. A IN NOERROR 0.000000 1 73
+Dec 06 23:32:31 unbound[20715:3] query: 34.211.140.122 version.bind. TXT CH
+Dec 06 23:32:31 unbound[20715:3] reply: 34.211.140.122 version.bind. TXT CH REFUSED 0.000000 0 30
+Dec 06 23:33:00 unbound[20715:0] query: 112.74.38.239 60.876776345.2023-12-06.odns.m.dnsscan.top. A IN
+Dec 06 23:33:03 unbound[20715:0] reply: 112.74.38.239 60.876776345.2023-12-06.odns.m.dnsscan.top. A IN NOERROR 3.052226 0 76
+Dec 06 23:36:38 unbound[20715:0] query: 112.74.38.239 49.876776345.2023-12-06.odns.m.dnsscan.top. A IN
+Dec 06 23:36:41 unbound[20715:0] reply: 112.74.38.239 49.876776345.2023-12-06.odns.m.dnsscan.top. A IN NOERROR 3.002977 0 76
+Dec 06 23:46:01 unbound[20715:1] query: 45.13.119.147 sl. ANY IN
+Dec 06 23:46:01 unbound[20715:1] reply: 45.13.119.147 sl. ANY IN NOTIMPL 0.000000 0 31
+Dec 07 06:54:03 unbound[21246:3] query: 106.195.38.38 github.com. A IN
+Dec 07 06:54:03 unbound[21246:3] reply: 106.195.38.38 github.com. A IN NOERROR 0.000000 1 44
+Dec 07 06:53:57 unbound[21246:2] query: 106.195.38.38 googleads.g.doubleclick.net. AAAA IN
