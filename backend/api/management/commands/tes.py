@@ -1,4 +1,6 @@
 import re
+from datetime import datetime
+from django.utils import timezone
 from django.core.management.base import BaseCommand
 from api.models import Log, Query, Reply, Domaincount
 
@@ -17,6 +19,9 @@ class Command(BaseCommand):
                     if match:
                         log_datetime_str, log_type, log_data = match.groups()
 
+                        # Parse the date and time and make it timezone-aware
+                        log_datetime = timezone.make_aware(datetime.strptime(log_datetime_str + ' 2023', '%b %d %H:%M:%S %Y'))
+
                         if log_type == 'query':
                             # Process the query
                             query_data = log_data.split()
@@ -26,10 +31,15 @@ class Command(BaseCommand):
                                 'record': query_data[2],
                                 'country': query_data[3],
                             }
+
+                            # Create or retrieve Query instance
+                            query_instance, _ = Query.objects.get_or_create(**current_query)
                         elif log_type == 'reply' and current_query:
                             # Process the reply
                             reply_data = log_data.split()
-                            reply_instance = Reply.objects.create(
+
+                            # Create or retrieve Reply instance
+                            reply_instance, _ = Reply.objects.get_or_create(
                                 ip=reply_data[0],
                                 domain=reply_data[1],
                                 record=reply_data[2],
@@ -40,27 +50,25 @@ class Command(BaseCommand):
                                 size=int(reply_data[7]),
                             )
 
-                            # Create Log instance only if both Query and Reply instances are available
-                            query_instance, created = Query.objects.get_or_create(**current_query)
-
-                            if created:
-                                Log.objects.create(query=query_instance, reply=reply_instance)
-
-                            # Update or create Domaincount entry
-                            domain_count, created = Domaincount.objects.get_or_create(
-                                domains=current_query['domain'],
-                                client=current_query['ip'],
+                            # Check if the Log entry already exists
+                            log_instance, created = Log.objects.get_or_create(
+                                datetime=log_datetime,
+                                reply=reply_instance,
+                                query=query_instance,
                             )
 
-                            if not created:
-                                domain_count.count += 1
-                                domain_count.save()
+                            # Update Domaincount model
+                            if created:
+                                domain_instance, _ = Domaincount.objects.get_or_create(domains=current_query['domain'])
+                                domain_instance.count += 1
+                                domain_instance.save()
 
                             # Reset current_query after processing the reply
                             current_query = None
 
-            print('Success: Log entries parsed and models created.')
         except FileNotFoundError:
             print(f"Error: File not found - {log_file_path}")
         except Exception as e:
             print(f"An error occurred: {e}")
+
+        print('Success: Log entries parsed and models created.')
