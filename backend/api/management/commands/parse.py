@@ -1,6 +1,6 @@
 import re
 from django.core.management.base import BaseCommand
-from api.models import Log, Query, Reply
+from api.models import Log, Query, Reply, Domaincount
 
 class Command(BaseCommand):
     help = 'Parse and save logs into Django models'
@@ -45,6 +45,16 @@ class Command(BaseCommand):
 
                             if created:
                                 Log.objects.create(query=query_instance, reply=reply_instance)
+
+                            # Update or create Domaincount entry
+                            domain_count, created = Domaincount.objects.get_or_create(
+                                domains=current_query['domain'],
+                                client=current_query['ip'],
+                            )
+
+                            if not created:
+                                domain_count.count += 1
+                                domain_count.save()
 
                             # Reset current_query after processing the reply
                             current_query = None

@@ -113,6 +113,11 @@ class Highlyusedusers(APIView):
         return Response(ip_counter)
 
 class Total_query(APIView):
-    def get(self, request):
-        total_count = Log.objects.count()
-        return Response(total_count)
+    def get(self, request, format=None):
+        logs = Domaincount.objects.all()
+        serializer = DomaincountSerializer(logs, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# class DomaincountAPI(APIView):
+#     def get(self, request):

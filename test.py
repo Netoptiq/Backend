@@ -1,5 +1,8 @@
-log_file_path = "E:\\Netoptiq - backend\\Sample\\unbound.log"
+import urllib.parse, http.client
 
-f = open(log_file_path, 'r')
-a =   f.readlines()
-print(a)
+p = { 'key': 'F3A012DBDB764E07E4AD8B0D3C57A167', 'domain': 'Enter_Domain_Name', 'format': 'json' }
+
+conn = http.client.HTTPSConnection("api.ip2whois.com")
+conn.request("GET", "/v2?" + urllib.parse.urlencode(p))
+res = conn.getresponse()
+print res.read()

@@ -17,3 +17,5 @@ Dec 06 23:46:01 unbound[20715:1] reply: 45.13.119.147 sl. ANY IN NOTIMPL 0.00000
 Dec 07 06:54:03 unbound[21246:3] query: 106.195.38.38 github.com. A IN
 Dec 07 06:54:03 unbound[21246:3] reply: 106.195.38.38 github.com. A IN NOERROR 0.000000 1 44
 Dec 07 06:53:57 unbound[21246:2] query: 106.195.38.38 googleads.g.doubleclick.net. AAAA IN
+Dec 07 06:54:00 unbound[21246:2] query: 106.195.38.38 www.gstatic.com. A IN
+Dec 07 06:54:00 unbound[21246:2] reply: 106.195.38.38 www.gstatic.com. A IN NOERROR 0.000000 1 49

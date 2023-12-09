@@ -1,19 +1,22 @@
-# api/management/commands/clear_logs.py
-
 from django.core.management.base import BaseCommand
-from api.models import Log, Query, Reply
+from api.models import Query, Reply, Log, Domaincount
 
 class Command(BaseCommand):
-    help = 'Clear all items from Log, Query, and Reply tables'
+    help = 'Clear all details in the database'
 
     def handle(self, *args, **options):
-        # Delete all items from the Log table
-        Log.objects.all().delete()
+        self.stdout.write("Deleting all data from the database...")
 
-        # Delete all items from the Reply table
-        Reply.objects.all().delete()
-
-        # Delete all items from the Query table
+        # Clear data from Query model
         Query.objects.all().delete()
 
-        self.stdout.write(self.style.SUCCESS('Successfully cleared all items from Log, Query, and Reply tables'))
+        # Clear data from Reply model
+        Reply.objects.all().delete()
+
+        # Clear data from Log model
+        Log.objects.all().delete()
+
+        # Clear data from Domaincount model
+        Domaincount.objects.all().delete()
+
+        self.stdout.write(self.style.SUCCESS("Successfully cleared all details in the database"))

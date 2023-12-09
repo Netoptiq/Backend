@@ -8,6 +8,7 @@ class Query(models.Model):
     record = models.CharField(max_length=10)
     country = models.CharField(max_length=5)
 
+
 class Reply(models.Model):
     ip = models.CharField(max_length=100)
     domain = models.CharField(max_length=100)  # Fix the typo here
@@ -18,7 +19,20 @@ class Reply(models.Model):
     size = models.IntegerField()
     country = models.CharField(max_length=5)
 
+
 class Log(models.Model):
     datetime = models.DateTimeField(auto_now_add=True)
     query = models.ForeignKey(Query, models.CASCADE)
     reply = models.ForeignKey(Reply, models.CASCADE)
+
+
+class Domaincount(models.Model):
+    domains = models.CharField(max_length=100)
+    client = models.CharField(max_length=100)
+    count = models.IntegerField(default=0,blank=0)
+
+
+
+
+
+

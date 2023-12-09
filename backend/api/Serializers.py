@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Query, Reply, Log
+from .models import *
 
 class QuerySerializer(serializers.ModelSerializer):
     class Meta:
@@ -18,4 +18,9 @@ class LogSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Log
+        fields = '__all__'
+
+class DomaincountSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Domaincount
         fields = '__all__'
