@@ -1,8 +1,14 @@
-import urllib.parse, http.client
+import requests
+domain = 'www.google.com'
+url = 'https://whoisjsonapi.com/v1/'+domain
+headers = {
+    'Authorization': 'Bearer TvL6oFeiLyV2cmRlvg8NTbAGUC2G0F34ns2NuGLHkmv8Li8vIs6yDz6dqxRHYxf'
+}
 
-p = { 'key': 'F3A012DBDB764E07E4AD8B0D3C57A167', 'domain': 'Enter_Domain_Name', 'format': 'json' }
-
-conn = http.client.HTTPSConnection("api.ip2whois.com")
-conn.request("GET", "/v2?" + urllib.parse.urlencode(p))
-res = conn.getresponse()
-print res.read()
+try:
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()  # Raises an HTTPError for bad responses
+    data = response.json()
+    print(data)
+except requests.exceptions.RequestException as e:
+    print(e)

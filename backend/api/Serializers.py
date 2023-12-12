@@ -24,3 +24,11 @@ class DomaincountSerializer(serializers.ModelSerializer):
     class Meta:
         model = Domaincount
         fields = '__all__'
+
+class DelaySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Delay
+        fields = '__all__'
+
+class PcapFileSerializer(serializers.Serializer):
+    pcap_file = serializers.FileField()

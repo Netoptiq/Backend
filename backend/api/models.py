@@ -9,12 +9,16 @@ class Domaincount(models.Model):
     domain = models.CharField(max_length=100)
     count = models.IntegerField(default=0,blank=0)
 
+
+
 class Query(models.Model):
     ip = models.CharField(max_length=100)
     domain = models.CharField(max_length=100)  # Fix the typo here
     record = models.CharField(max_length=10)
     country = models.CharField(max_length=5)
 
+class Delay(models.Model):
+    delay = models.FloatField()
 
 class Reply(models.Model):
     ip = models.CharField(max_length=100)
@@ -25,6 +29,15 @@ class Reply(models.Model):
     TSIG = models.FloatField()
     size = models.IntegerField()
     country = models.CharField(max_length=5)
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.update_delay_table()
+    
+    def update_delay_table(self):
+        delay = self.delay
+        Delay.objects.create(delay = delay)
+
 
 
 class Log(models.Model):
@@ -44,6 +57,18 @@ class Log(models.Model):
         if not created:
             domain_count.count += 1
             domain_count.save()
+
+class ParsedPacket(models.Model):
+    time = models.DateTimeField()
+    src = models.GenericIPAddressField(null=True, blank=True)
+    dst = models.GenericIPAddressField(null=True, blank=True)
+    proto = models.CharField(max_length=255)
+    len = models.IntegerField()
+    sport = models.IntegerField(null=True, blank=True)
+    dport = models.IntegerField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.src} -> {self.dst}, Proto: {self.proto}, Len: {self.len}"
 
 
 
