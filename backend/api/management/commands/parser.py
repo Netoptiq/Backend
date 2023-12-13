@@ -8,7 +8,7 @@ class Command(BaseCommand):
     help = 'Parse and save logs into Django models'
 
     def handle(self, *args, **options):
-        log_file_path = "E:\\Netoptiq - backend\\Sample\\query.log"
+        log_file_path = "/home/bewin/Projects/Backend-1/Sample/query.log"
 
         current_query = None  # To store the current query while processing replies
 

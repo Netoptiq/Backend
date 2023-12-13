@@ -9,8 +9,6 @@ class Domaincount(models.Model):
     domain = models.CharField(max_length=100)
     count = models.IntegerField(default=0,blank=0)
 
-
-
 class Query(models.Model):
     ip = models.CharField(max_length=100)
     domain = models.CharField(max_length=100)  # Fix the typo here
@@ -19,7 +17,7 @@ class Query(models.Model):
 
 class Delay(models.Model):
     delay = models.FloatField()
-
+    
 class Reply(models.Model):
     ip = models.CharField(max_length=100)
     domain = models.CharField(max_length=100)  # Fix the typo here
@@ -37,8 +35,6 @@ class Reply(models.Model):
     def update_delay_table(self):
         delay = self.delay
         Delay.objects.create(delay = delay)
-
-
 
 class Log(models.Model):
     datetime = models.DateTimeField()
@@ -69,12 +65,5 @@ class ParsedPacket(models.Model):
 
     def __str__(self):
         return f"{self.src} -> {self.dst}, Proto: {self.proto}, Len: {self.len}"
-
-
-
-
-
-
-
 
 
