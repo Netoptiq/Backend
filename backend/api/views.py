@@ -232,5 +232,3 @@ class WhoisAPI(APIView):
         except requests.exceptions.RequestException as e:
             return Response(e)
 
-
-
