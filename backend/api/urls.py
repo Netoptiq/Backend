@@ -4,6 +4,11 @@ from .views import *
 
 urlpatterns = [
     path('log/',LogView.as_view()),
+    path('blacklist/',BlacklistView.as_view()),
+    path('report/',DNSLogReport.as_view()),
+
+
+
    
     path('tquery/',Total_query.as_view()),
     path('lquery/',Livegraph.as_view()),
@@ -14,6 +19,6 @@ urlpatterns = [
     path('whois/',WhoisAPI.as_view()),#domain
     path('rdomain/',Domain_Reputation.as_view()),
     path('reply/',DNSLogListCreateView.as_view()),
-    
+
     path('log1/', LogListPagenationAPIView.as_view(), name=''),#http://localhost:8000/api/log1/?page=1
 ]

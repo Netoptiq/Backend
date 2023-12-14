@@ -54,18 +54,6 @@ class Log(models.Model):
             domain_count.count += 1
             domain_count.save()
 
-class ParsedPacket(models.Model):
-    time = models.DateTimeField()
-    src = models.GenericIPAddressField(null=True, blank=True)
-    dst = models.GenericIPAddressField(null=True, blank=True)
-    proto = models.CharField(max_length=255)
-    len = models.IntegerField()
-    sport = models.IntegerField(null=True, blank=True)
-    dport = models.IntegerField(null=True, blank=True)
-
-    def __str__(self):
-        return f"{self.src} -> {self.dst}, Proto: {self.proto}, Len: {self.len}"
-
 
 class DNSLog(models.Model):
     date_time = models.DateTimeField()
@@ -81,3 +69,7 @@ class DNSLog(models.Model):
 
     def __str__(self):
         return f"{self.date_time} - {self.process_name} - {self.domain_name}"
+
+
+class Blacklist(models.Model):
+    domain = models.CharField(max_length=200)

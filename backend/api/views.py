@@ -123,6 +123,8 @@ class LogListAPIView(APIView):#all log
         serializer = LogSerializer(logs, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+
 class Livegraph(APIView): #query came last 30 sec
     def get(self, request, *args, **kwargs):
         try:
@@ -245,3 +247,47 @@ class DNSLogListCreateView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+
+class BlacklistView(APIView):
+    def get(self,request):
+        data = Blacklist.objects.all()
+        serializers = BlacklistSerializer(data, many = True)
+        return Response(serializers.data)
+    
+    def post(self,request):
+        serializer = BlacklistSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class DNSLogReport(APIView):
+    def post(self, request, *args, **kwargs):
+        start_date_time = request.data.get('start_date_time')
+        end_date_time = request.data.get('end_date_time')
+
+        if not start_date_time or not end_date_time:
+            return Response(
+                {"error": "Please provide both start_date_time and end_date_time in the request data."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            start_date_time = timezone.datetime.fromisoformat(start_date_time)
+            end_date_time = timezone.datetime.fromisoformat(end_date_time)
+        except ValueError:
+            return Response(
+                {"error": "Invalid date-time format. Please provide dates in ISO 8601 format (YYYY-MM-DDTHH:MM:SS)."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        logs = DNSLog.objects.filter(
+            date_time__gte=start_date_time,
+            date_time__lte=end_date_time
+        )
+
+        serializer = DNSLogSerializer(logs, many=True)  # Use your serializer here
+
+        return Response(serializer.data, status=status.HTTP_200_OK)

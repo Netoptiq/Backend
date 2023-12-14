@@ -35,10 +35,13 @@ class PcapFileSerializer(serializers.Serializer):
     
 
 # serializers.py
-from rest_framework import serializers
-from .models import DNSLog
 
 class DNSLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = DNSLog
+        fields = '__all__'
+
+class BlacklistSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Blacklist
         fields = '__all__'
