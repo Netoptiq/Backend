@@ -15,7 +15,7 @@ import requests
 
 log_file_path = "E:\\Netoptiq - backend\\Sample\\dns_log_file.log"
 
-class Test(APIView):
+class Test1(APIView):
     def post(self, request):
         dns_record_pattern = re.compile(r'IN\s+([\w.-]+)\s+([+-])')
         dns_record_counts = {}
@@ -93,10 +93,10 @@ class DNSLogQueryCountView(APIView):
 #realtime log
 
 
-class Test(APIView): #domain visited
+class LogView(APIView): #domain visited
     def get(self, request, format=None):
-        logs = Delay.objects.all()
-        serializer = DelaySerializer(logs, many=True)
+        logs = DNSLog.objects.all()
+        serializer = DNSLogSerializer(logs, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
 
@@ -232,3 +232,16 @@ class WhoisAPI(APIView):
         except requests.exceptions.RequestException as e:
             return Response(e)
 
+
+class DNSLogListCreateView(APIView):
+    def get(self, request, format=None):
+        dns_logs = DNSLog.objects.all()
+        serializer = DNSLogSerializer(dns_logs, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, format=None):
+        serializer = DNSLogSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -32,3 +32,13 @@ class DelaySerializer(serializers.ModelSerializer):
 
 class PcapFileSerializer(serializers.Serializer):
     pcap_file = serializers.FileField()
+    
+
+# serializers.py
+from rest_framework import serializers
+from .models import DNSLog
+
+class DNSLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DNSLog
+        fields = '__all__'

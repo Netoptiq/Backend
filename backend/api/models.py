@@ -67,3 +67,17 @@ class ParsedPacket(models.Model):
         return f"{self.src} -> {self.dst}, Proto: {self.proto}, Len: {self.len}"
 
 
+class DNSLog(models.Model):
+    date_time = models.DateTimeField()
+    # process_name = models.CharField(max_length=255)
+    ip_address = models.GenericIPAddressField()
+    domain_name = models.CharField(max_length=255)
+    record_type = models.CharField(max_length=10)
+    query_class = models.CharField(max_length=10)
+    query_type = models.CharField(max_length=10)
+    query_time = models.FloatField()
+    num_records = models.IntegerField()
+    record_size = models.IntegerField()
+
+    def __str__(self):
+        return f"{self.date_time} - {self.process_name} - {self.domain_name}"

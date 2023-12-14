@@ -10,7 +10,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         log_file_path = "/home/bewin/Projects/Backend-1/Sample/query.log"
 
-        current_query = None  # To store the current query while processing replies
+        current_query = None  
 
         try:
             with open(log_file_path, 'r') as f:
