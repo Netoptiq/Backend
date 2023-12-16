@@ -1,95 +1,101 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
+
 # Create your views here.
-import os
-import re
-from collections import deque
+from scapy.all import rdpcap, IP, TCP, UDP
+
 from rest_framework import status
 from .models import *
 from .Serializers import *
-from datetime import datetime, timedelta
-from collections import Counter
-from django.db.models import Count
+
 import requests
-from django.conf import settings
-from django.core.files.storage import default_storage
 import pandas as pd
-from djangochannelsrestframework.generics import GenericAsyncAPIConsumer
+import json
 
-log_file_path = "E:\\Netoptiq - backend\\Sample\\dns_log_file.log"
 
-class Test1(APIView):
-    def post(self, request):
-        dns_record_pattern = re.compile(r'IN\s+([\w.-]+)\s+([+-])')
-        dns_record_counts = {}
-        with open(log_file_path, 'r') as file:
-            lines = file.readlines()
-            for line in lines:
-                match = dns_record_pattern.search(line)
-                if match:
-                    record_type = match.group(1)  # Extract the first group: record type
-                    # sign = match.group(2)  # Extract the second group: '+' or '-'
+# from collections import deque
+# from datetime import datetime, timedelta
+# from collections import Counter
+# from django.db.models import Count
+# from djangochannelsrestframework.generics import GenericAsyncAPIConsumer
+# from django.conf import settings
+# from django.core.files.storage import default_storage
+# import os
+# import re
+
+# class Test1(APIView):
+#     def post(self, request):
+#         dns_record_pattern = re.compile(r'IN\s+([\w.-]+)\s+([+-])')
+#         dns_record_counts = {}
+#         with open(log_file_path, 'r') as file:
+#             lines = file.readlines()
+#             for line in lines:
+#                 match = dns_record_pattern.search(line)
+#                 if match:
+#                     record_type = match.group(1)  # Extract the first group: record type
+#                     # sign = match.group(2)  # Extract the second group: '+' or '-'
                     
-                    if 'IN' in line and '+' in line:
-                        key = f"{record_type}"
-                        dns_record_counts[key] = dns_record_counts.get(key, 0) + 1
+#                     if 'IN' in line and '+' in line:
+#                         key = f"{record_type}"
+#                         dns_record_counts[key] = dns_record_counts.get(key, 0) + 1
 
-        line_count = len(lines)
-        response = {
-            'total_query': line_count,
-            'dns_record_counts': dns_record_counts,
-        }
-        return Response(response)
+#         line_count = len(lines)
+#         response = {
+#             'total_query': line_count,
+#             'dns_record_counts': dns_record_counts,
+#         }
+#         return Response(response)
 
-class BasicAnalysis(APIView):
-    def get(self, request):
-        with open(log_file_path, 'r') as file:
-            lines = file.readlines()
-        line_count = len(lines) 
+# class BasicAnalysis(APIView):
+#     def get(self, request):
+#         with open(log_file_path, 'r') as file:
+#             lines = file.readlines()
+#         line_count = len(lines) 
         
-        response = {
-            'query': line_count
-        }   
-        return Response(response)
+#         response = {
+#             'query': line_count
+#         }   
+#         return Response(response)
 
 
 
-class LiveQuery(APIView):
-    def post(self, request):
-        log_file_path = "E:\\Netoptiq - backend\\Sample\\dns_log_file.log"
-        num_last_lines = 10
-        last_lines_buffer = deque(maxlen=num_last_lines)
-        with open(log_file_path, 'r') as file:
-            for line in file:
-                last_lines_buffer.append(line)
-        last_10_lines = list(last_lines_buffer)
-        response = {
-            'last_10_lines': last_10_lines,
-        }
-        return Response(response)
+# class LiveQuery(APIView):
+#     def post(self, request):
+#         log_file_path = "E:\\Netoptiq - backend\\Sample\\dns_log_file.log"
+#         num_last_lines = 10
+#         last_lines_buffer = deque(maxlen=num_last_lines)
+#         with open(log_file_path, 'r') as file:
+#             for line in file:
+#                 last_lines_buffer.append(line)
+#         last_10_lines = list(last_lines_buffer)
+#         response = {
+#             'last_10_lines': last_10_lines,
+#         }
+#         return Response(response)
     
 
     
-class DNSLogQueryCountView(APIView):
-    def get(self, request, format=None):
-        log_file_path = "E:\\Netoptiq - backend\\Sample\\unbound.log"
+# class DNSLogQueryCountView(APIView):
+#     def get(self, request, format=None):
+#         log_file_path = "E:\\Netoptiq - backend\\Sample\\unbound.log"
 
-        f = open(log_file_path, 'r')
-        a = f.readlines()
-        # try:
-        #     with open(log_file_path, 'r') as log_file:
-        #         log_entries = log_file.readlines()
-        # except FileNotFoundError:
-        #     return Response({"error": "Log file not found"}, status=status.HTTP_404_NOT_FOUND)
+#         f = open(log_file_path, 'r')
+#         a = f.readlines()
+#         # try:
+#         #     with open(log_file_path, 'r') as log_file:
+#         #         log_entries = log_file.readlines()
+#         # except FileNotFoundError:
+#         #     return Response({"error": "Log file not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        # Regular expression to match queries
-        query = re.findall('query:',a)
+#         # Regular expression to match queries
+#         query = re.findall('query:',a)
 
-        # Count the number of queries using regular expressions
-        print(len(query))
-        # return Response("dwadwa")
-        # return Response({"total_queries": len(query)}, status=status.HTTP_200_OK)
+#         # Count the number of queries using regular expressions
+#         print(len(query))
+#         # return Response("dwadwa")
+#         # return Response({"total_queries": len(query)}, status=status.HTTP_200_OK)
 
 
 ###########################################################################################################################
@@ -97,72 +103,113 @@ class DNSLogQueryCountView(APIView):
 #realtime log
 
 
-class LogView(APIView): #domain visited
-    def get(self, request, format=None):
-        logs = DNSLog.objects.all()
-        serializer = DNSLogSerializer(logs, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+# class LogView(APIView): #domain visited
+#     def get(self, request, format=None):
+#         logs = DNSLog.objects.all()
+#         serializer = DNSLogSerializer(logs, many=True)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
     
 
 
+# class LogListAPIView(APIView):#all log
+#     def get(self, request, format=None):
+#         logs = Log.objects.all()
+#         serializer = LogSerializer(logs, many=True)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
 
-from rest_framework.pagination import PageNumberPagination
+
+
+# class Livegraph(APIView): #query came last 30 sec
+#     def get(self, request, *args, **kwargs):
+#         try:
+#             thirty_seconds_ago = timezone.now() - timezone.timedelta(seconds=30)
+#             count = Log.objects.filter(datetime__gt=thirty_seconds_ago ).count()
+#             return Response({'count': count}, status=status.HTTP_200_OK)
+        
+#         except Exception as e:
+#             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+     
+# class Highlyusedusers(APIView): #top 5 ip
+#     def get(self,request):
+#         ip_counter = Counter(Query.objects.values_list('ip', flat=True))
+#         top_ips = ip_counter.most_common(6)
+#         return Response(top_ips)
+
+# class Total_query(APIView):#!!!!
+#     def get(self, request, format=None):
+#         logs = Log.objects.count()
+#         # serializer = DomaincountSerializer(logs, many=True)
+#         return Response(logs, status=status.HTTP_200_OK)
+
+# class Domain_Count(APIView): #domain visited
+#     def get(self, request, format=None):
+#         logs = Domaincount.objects.all()
+#         serializer = DomaincountSerializer(logs, many=True)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# class DNSLogListCreateView(APIView):
+#     def get(self, request, format=None):
+#         dns_logs = DNSLog.objects.all()
+#         serializer = DNSLogSerializer(dns_logs, many=True)
+#         return Response(serializer.data)
+
+#     def post(self, request, format=None):
+#         serializer = DNSLogSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+
+# from rest_framework.views import APIView
+# from rest_framework.response import Response
+# import csv
+
+# class Tsv(APIView):
+#     def post(self, request):
+#         # Assuming the file input field is named 'log'
+#         parser = request.FILES['log']
+
+#         # Initialize an empty list to store the JSON data
+#         json_data = []
+
+#         # Read the TSV file using the csv module
+#         reader = csv.reader(parser, delimiter='\t')
+
+#         # Assuming the first row of the TSV file contains headers
+#         headers = next(reader)
+
+#         # Iterate through each row in the TSV file and convert it to a dictionary
+#         for row in reader:
+#             row_data = {}
+#             for i in range(len(headers)):
+#                 row_data[headers[i]] = row[i]
+#             json_data.append(row_data)
+
+#         # Return the JSON data as a response
+#         return Response(json_data)
+
+############################+++++++++++++++++++++++++++++++++++++
+
+
 
 class ReverseOrderPageNumberPagination(PageNumberPagination):
     page_size = 10  # Set your desired page size
     page_size_query_param = 'page_size'
     max_page_size = 100
 
+
 class LogListPagenationAPIView(APIView):#log with pagination
     def get(self, request, format=None):
-        logs = Log.objects.all().order_by('-datetime')  # Assuming there's a timestamp field for sorting
+        logs = DNSLog.objects.all().order_by('-datetime')  # Assuming there's a timestamp field for sorting
         paginator = ReverseOrderPageNumberPagination()
         result_page = paginator.paginate_queryset(logs, request)
-        serializer = LogSerializer(result_page, many=True)
+        serializer = DNSLogSerializer(result_page, many=True)
         return paginator.get_paginated_response(serializer.data)
 
-class LogListAPIView(APIView):#all log
-    def get(self, request, format=None):
-        logs = Log.objects.all()
-        serializer = LogSerializer(logs, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
-
-
-class Livegraph(APIView): #query came last 30 sec
-    def get(self, request, *args, **kwargs):
-        try:
-            thirty_seconds_ago = timezone.now() - timezone.timedelta(seconds=30)
-            count = Log.objects.filter(datetime__gt=thirty_seconds_ago ).count()
-            return Response({'count': count}, status=status.HTTP_200_OK)
-        
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-     
-class Highlyusedusers(APIView): #top 5 ip
-    def get(self,request):
-        ip_counter = Counter(Query.objects.values_list('ip', flat=True))
-        top_ips = ip_counter.most_common(6)
-        return Response(top_ips)
-
-class Total_query(APIView):#!!!!
-    def get(self, request, format=None):
-        logs = Log.objects.count()
-        # serializer = DomaincountSerializer(logs, many=True)
-        return Response(logs, status=status.HTTP_200_OK)
-
-class Domain_Count(APIView): #domain visited
-    def get(self, request, format=None):
-        logs = Domaincount.objects.all()
-        serializer = DomaincountSerializer(logs, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-
-############################+++++++++++++++++++++++++++++++++++++
-# from scapy.all import rdpcap
-
-from scapy.all import rdpcap, IP, TCP, UDP
 
 class PcapFileParseView(APIView):#pcap analysis
     def post(self, request):
@@ -242,21 +289,6 @@ class WhoisAPI(APIView):
             return Response(e)
 
 
-class DNSLogListCreateView(APIView):
-    def get(self, request, format=None):
-        dns_logs = DNSLog.objects.all()
-        serializer = DNSLogSerializer(dns_logs, many=True)
-        return Response(serializer.data)
-
-    def post(self, request, format=None):
-        serializer = DNSLogSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-
-
 class BlacklistView(APIView):
     def get(self,request):
         data = Blacklist.objects.all()
@@ -303,9 +335,6 @@ class DNSLogReport(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
 
-
-import json
-
 class Tsv(APIView):
     def post(self, request):
         parser = request.FILES['log']
@@ -316,35 +345,4 @@ class Tsv(APIView):
         except json.JSONDecodeError as e:
             return Response({"error": f"Failed to parse JSON from TSV file: {str(e)}"}, status=400)
         return Response(data_from_csv)
-
-
-
-# from rest_framework.views import APIView
-# from rest_framework.response import Response
-# import csv
-
-# class Tsv(APIView):
-#     def post(self, request):
-#         # Assuming the file input field is named 'log'
-#         parser = request.FILES['log']
-
-#         # Initialize an empty list to store the JSON data
-#         json_data = []
-
-#         # Read the TSV file using the csv module
-#         reader = csv.reader(parser, delimiter='\t')
-
-#         # Assuming the first row of the TSV file contains headers
-#         headers = next(reader)
-
-#         # Iterate through each row in the TSV file and convert it to a dictionary
-#         for row in reader:
-#             row_data = {}
-#             for i in range(len(headers)):
-#                 row_data[headers[i]] = row[i]
-#             json_data.append(row_data)
-
-#         # Return the JSON data as a response
-#         return Response(json_data)
-
 

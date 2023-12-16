@@ -10,3 +10,5 @@ channels
 djangochannelsrestframework
 geohash2
 pandas
+channels
+django-extensions

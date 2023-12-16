@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # 'django-extensions',
     'corsheaders',
     'rest_framework',
     'api'
@@ -73,7 +74,7 @@ TEMPLATES = [
         },
     },
 ]
-
+# ASGI_APPLICATION = 'backend.asgi.application'
 WSGI_APPLICATION = 'backend.wsgi.application'
 
 # REST_FRAMEWORK = {
@@ -93,6 +94,8 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+# settings.py
+
 
 # DATABASES = {
 #     'default': {
