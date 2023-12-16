@@ -66,7 +66,7 @@ class DNSLog(models.Model):
     query_time = models.FloatField()
     num_records = models.IntegerField()
     record_size = models.IntegerField()
-    location = models.CharField(max_length=200)
+    location = models.CharField(max_length=200,blank="",default='')
 
     def __str__(self):
         return f"{self.date_time} - {self.process_name} - {self.domain_name}"

@@ -12,7 +12,6 @@ from datetime import datetime, timedelta
 from collections import Counter
 from django.db.models import Count
 import requests
-from parsezeeklogs import ParseZeekLogs
 from django.conf import settings
 from django.core.files.storage import default_storage
 import pandas as pd

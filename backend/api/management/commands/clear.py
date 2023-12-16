@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from api.models import Query, Reply, Log, Domaincount
+from api.models import Query, Reply, Log, Domaincount, DNSLog
 
 class Command(BaseCommand):
     help = 'Clear all details in the database'
@@ -18,5 +18,7 @@ class Command(BaseCommand):
 
         # Clear data from Domaincount model
         Domaincount.objects.all().delete()
+
+        DNSLog.objects.all().delete()
 
         self.stdout.write(self.style.SUCCESS("Successfully cleared all details in the database"))
