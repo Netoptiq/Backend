@@ -201,9 +201,9 @@ class ReverseOrderPageNumberPagination(PageNumberPagination):
     max_page_size = 100
 
 
-class LogListPagenationAPIView(APIView):#log with pagination
+class LogListPagenationAPIView(APIView): #log with pagination
     def get(self, request, format=None):
-        logs = DNSLog.objects.all().order_by('-datetime')  # Assuming there's a timestamp field for sorting
+        logs = DNSLog.objects.all().order_by('-date_time')  # Assuming there's a timestamp field for sorting
         paginator = ReverseOrderPageNumberPagination()
         result_page = paginator.paginate_queryset(logs, request)
         serializer = DNSLogSerializer(result_page, many=True)
