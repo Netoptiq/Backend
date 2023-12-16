@@ -1,48 +1,37 @@
-import re
-import time
-from datetime import datetime
-
-
-log_file_path = "/home/bewin/Projects/Backend-1/Sample/query.log"
-
-def process_log_entry(entry):
-    timestamp, action, details = entry
-    a = details.split()
-    date_string_with_year = f"2023 {timestamp}"
-    datetime_object = datetime.strptime(date_string_with_year, "%Y %b %d %H:%M:%S")
-
+import requests
+import geohash2
+def get_coordinates_from_ip(ip_address):
+    # Make a request to the ipinfo.io API
+    response = requests.get(f"http://ipinfo.io/{ip_address}/json")
     
-    print(f"Timestamp: {datetime_object}")
-    print(f"Action: {action}")
-    print(f"Details: {details}")
-    print(a[0])
-    print(a[1])
-    print(a[2])
-    print(a[3])
-    print(a[4])
-    print(a[5])
-    print(a[6])
-    print(a[7])
-    print("\n")
+    # Parse the JSON response
+    data = response.json()
+    
+    # Extract latitude and longitude from the response
+    if "loc" in data:
+        latitude, longitude = map(float, data["loc"].split(","))
+        return latitude, longitude
+    else:
+        # If the "loc" field is not present in the response, handle the error accordingly
+        print(f"Unable to retrieve coordinates for IP address {ip_address}")
+        return None
 
-def read_log_file(file_path):
-    with open(file_path, 'r') as file:
-        log_entries = file.read()
-    matches = re.findall(r'(\w{3} \d{2} \d{2}:\d{2}:\d{2}) .* (reply): (.+)', log_entries)
-    return matches
+def ip_to_geohash(ip_address):
+    coordinates = get_coordinates_from_ip(ip_address)
+    print(coordinates)
+    if coordinates:
+        latitude, longitude = coordinates
+        
+        # Convert coordinates to geohash
+        geohash = geohash2.encode(latitude, longitude)
+        
+        return geohash
+    else:
+        return None
 
-processed_entries = []
+# Example usage
+ip_address = "8.8.8.8"  # Replace with the desired IP address
+result_geohash = ip_to_geohash(ip_address)
 
-while True:
-    current_entries = read_log_file(log_file_path)
-
-    # Check for new entries
-    new_entries = [entry for entry in current_entries if entry not in processed_entries]
-    for entry in new_entries:
-        process_log_entry(entry)
-
-    # Update processed_entries
-    processed_entries = current_entries
-
-    # Sleep for a specified interval (e.g., 1 second)
-    time.sleep(1)
+if result_geohash:
+    print(f"Geohash for {ip_address}: {result_geohash}")

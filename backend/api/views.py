@@ -12,6 +12,11 @@ from datetime import datetime, timedelta
 from collections import Counter
 from django.db.models import Count
 import requests
+from parsezeeklogs import ParseZeekLogs
+from django.conf import settings
+from django.core.files.storage import default_storage
+import pandas as pd
+from djangochannelsrestframework.generics import GenericAsyncAPIConsumer
 
 log_file_path = "E:\\Netoptiq - backend\\Sample\\dns_log_file.log"
 
@@ -154,6 +159,8 @@ class Domain_Count(APIView): #domain visited
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+
+############################+++++++++++++++++++++++++++++++++++++
 # from scapy.all import rdpcap
 
 from scapy.all import rdpcap, IP, TCP, UDP
@@ -167,16 +174,17 @@ class PcapFileParseView(APIView):#pcap analysis
         for packet in packets:
             print(packet)
             i+=1
-            # proto = packet.proto if 'proto' in packet else ''
             packet_len = packet.len if 'len' in packet else ''
-
             packet_info = {
                 'id': i,
                 'time': packet.time,
                 'src': packet[IP].src if packet.haslayer(IP) else '',
                 'dst': packet[IP].dst if packet.haslayer(IP) else '',
                 'len': packet_len,
+                'malware': False,
             }
+            if packet_info['dst'] !='' and Blacklist.objects.filter(domain=packet_info['dst']).exists():
+                packet_info['malware'] = True
             if packet.haslayer(TCP):
                 packet_info['proto'] = 'TCP'
                 packet_info['sport'] = packet[TCP].sport
@@ -263,6 +271,9 @@ class BlacklistView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+
+
+
 class DNSLogReport(APIView):
     def post(self, request, *args, **kwargs):
         start_date_time = request.data.get('start_date_time')
@@ -291,3 +302,50 @@ class DNSLogReport(APIView):
         serializer = DNSLogSerializer(logs, many=True)  # Use your serializer here
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+
+import json
+
+class Tsv(APIView):
+    def post(self, request):
+        parser = request.FILES['log']
+        df = pd.read_csv(parser, sep='\t')
+        json_data_from_csv = df.to_json(orient='records')
+        try:
+            data_from_csv = json.loads(json_data_from_csv)
+        except json.JSONDecodeError as e:
+            return Response({"error": f"Failed to parse JSON from TSV file: {str(e)}"}, status=400)
+        return Response(data_from_csv)
+
+
+
+# from rest_framework.views import APIView
+# from rest_framework.response import Response
+# import csv
+
+# class Tsv(APIView):
+#     def post(self, request):
+#         # Assuming the file input field is named 'log'
+#         parser = request.FILES['log']
+
+#         # Initialize an empty list to store the JSON data
+#         json_data = []
+
+#         # Read the TSV file using the csv module
+#         reader = csv.reader(parser, delimiter='\t')
+
+#         # Assuming the first row of the TSV file contains headers
+#         headers = next(reader)
+
+#         # Iterate through each row in the TSV file and convert it to a dictionary
+#         for row in reader:
+#             row_data = {}
+#             for i in range(len(headers)):
+#                 row_data[headers[i]] = row[i]
+#             json_data.append(row_data)
+
+#         # Return the JSON data as a response
+#         return Response(json_data)
+
+

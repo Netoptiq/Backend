@@ -6,10 +6,9 @@ urlpatterns = [
     path('log/',LogView.as_view()),
     path('blacklist/',BlacklistView.as_view()),
     path('report/',DNSLogReport.as_view()),
+    path('test/',Tsv.as_view()),
 
 
-
-   
     path('tquery/',Total_query.as_view()),
     path('lquery/',Livegraph.as_view()),
     path('highlyuseduser/',Highlyusedusers.as_view()),
