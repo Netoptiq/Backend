@@ -103,11 +103,11 @@ import json
 #realtime log
 
 
-# class LogView(APIView): #domain visited
-#     def get(self, request, format=None):
-#         logs = DNSLog.objects.all()
-#         serializer = DNSLogSerializer(logs, many=True)
-#         return Response(serializer.data, status=status.HTTP_200_OK)
+class LogView(APIView): #domain visited
+    def get(self, request, format=None):
+        logs = DNSLog.objects.all()
+        serializer = DNSLogSerializer(logs, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     
 
 

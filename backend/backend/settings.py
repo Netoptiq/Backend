@@ -97,16 +97,16 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # settings.py
 
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'test',
-        'USER': 'bewin',
-        'PASSWORD': 'root',  # Use the new password you set
-        'HOST': 'zion.netoptiq.cloud',
-        'PORT': '5433',
-    } 
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'test',
+#         'USER': 'bewin',
+#         'PASSWORD': 'root',  # Use the new password you set
+#         'HOST': 'zion.netoptiq.cloud',
+#         'PORT': '5433',
+#     } 
+# }
 
 
 # Password validation

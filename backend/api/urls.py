@@ -17,7 +17,7 @@ urlpatterns = [
     path('domain/',Domain_data.as_view()),
     path('whois/',WhoisAPI.as_view()),#domain
     path('rdomain/',Domain_Reputation.as_view()),
-    # path('reply/',DNSLogListCreateView.as_view()),
+    path('reply/',LogView.as_view()),
 
     path('log1/', LogListPagenationAPIView.as_view(), name=''),#http://localhost:8000/api/log1/?page=1
 ]
