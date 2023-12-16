@@ -88,25 +88,25 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 # settings.py
 
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'test',
-#         'USER': 'bewin',
-#         'PASSWORD': 'root',  # Use the new password you set
-#         'HOST': '65.0.26.139',
-#         'PORT': '5433',
-#     } 
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'test',
+        'USER': 'bewin',
+        'PASSWORD': 'root',  # Use the new password you set
+        'HOST': 'zion.netoptiq.cloud',
+        'PORT': '5433',
+    } 
+}
 
 
 # Password validation
