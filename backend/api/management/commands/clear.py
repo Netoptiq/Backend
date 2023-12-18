@@ -10,9 +10,6 @@ class Command(BaseCommand):
         # Clear data from Query model
         Blacklist.objects.all().delete()
 
-        # Clear data from Reply model
-
-
-        # DNSLog.objects.all().delete()
+        DNSLog.objects.all().delete()
 
         self.stdout.write(self.style.SUCCESS("Successfully cleared all details in the database"))

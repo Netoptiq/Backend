@@ -68,7 +68,8 @@ class DNSLog(models.Model):
     query_time = models.FloatField()
     num_records = models.IntegerField()
     record_size = models.IntegerField()
-    location = models.CharField(max_length=200,blank="",default='')
+    latitude = models.CharField(max_length=200,blank="",default='')
+    longitude = models.CharField(max_length=200,blank="",default='')
 
     def __str__(self):
         return f"{self.date_time} - {self.process_name} - {self.domain_name}"
@@ -78,15 +79,15 @@ file_path = '/home/bewin/Projects/Backend-1/Sample/blacklist.conf'
 
 class Blacklist(models.Model):
     domain = models.CharField(max_length=200)
-    
-    def save(self, *args, **kwargs):
-        with open(file_path, "a") as file:
-            try:
-                print(self.domain)
-                fcntl.flock(file, fcntl.LOCK_EX)
-                file.write(f'local-zone: "{self.domain}" redirect\n')
-                file.write(f'local-data: "{self.domain} A 127.0.0.1"\n')
-            finally:
-                fcntl.flock(file, fcntl.LOCK_UN)
-        super().save(*args, **kwargs)
+
+    # def save(self, *args, **kwargs):
+    #     with open(file_path, "a") as file:
+    #         try:
+    #             print(self.domain)
+    #             fcntl.flock(file, fcntl.LOCK_EX)
+    #             file.write(f'local-zone: "{self.domain}" redirect\n')
+    #             file.write(f'local-data: "{self.domain} A 127.0.0.1"\n')
+    #         finally:
+    #             fcntl.flock(file, fcntl.LOCK_UN)
+    #     super().save(*args, **kwargs)
         
