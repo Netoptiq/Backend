@@ -24,3 +24,5 @@ class Command(BaseCommand):
             Blacklist.objects.create(domain=domain_or_ip)
 
         self.stdout.write(self.style.SUCCESS('Blacklist updated successfully'))
+
+

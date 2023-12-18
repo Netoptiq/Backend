@@ -78,6 +78,7 @@ file_path = '/home/bewin/Projects/Backend-1/Sample/blacklist.conf'
 
 class Blacklist(models.Model):
     domain = models.CharField(max_length=200)
+    
     def save(self, *args, **kwargs):
         with open(file_path, "a") as file:
             try:
