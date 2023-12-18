@@ -45,3 +45,8 @@ class BlacklistSerializer(serializers.ModelSerializer):
     class Meta:
         model = Blacklist
         fields = '__all__'
+
+class LocationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DNSLog
+        fields = ('ip_address','domain_name')

@@ -110,6 +110,16 @@ class LogView(APIView): #domain visited
         return Response(serializer.data, status=status.HTTP_200_OK)
     
 
+class LocationAPI(APIView): #domain visited
+    def get(self, request, format=None):
+        dns_logs = DNSLog.objects.all()
+        serializer = DNSLogSerializer(dns_logs, many=True)
+        data = serializer.data
+
+        # Extracting the desired values
+        result = [{'ip_address': entry['ip_address'], 'domain_name': entry['domain_name']} for entry in data]
+
+        return Response(result)
 
 # class LogListAPIView(APIView):#all log
 #     def get(self, request, format=None):

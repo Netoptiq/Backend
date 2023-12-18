@@ -1,4 +1,6 @@
 # yourapp/management/commands/parse_logs.py
+
+### written for adding form file to db ###
 import re
 from django.core.management.base import BaseCommand
 from api.models import Blacklist

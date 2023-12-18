@@ -3,10 +3,9 @@ import requests
 from django.core.management.base import BaseCommand
 from api.models import DNSLog
 from datetime import datetime
-import geohash2
 import time
 
-log_file_path = "/home/bewin/Projects/Backend-1/Sample/query.log"
+log_file_path = "/home/bewin/Projects/Backend-1/Sample/unbound.log"
 
 class Command(BaseCommand):
     help = 'Check and add DNS log entries to the database'
@@ -33,7 +32,6 @@ class Command(BaseCommand):
         date_string_with_year = f"2023 {timestamp}"
         datetime_object = datetime.strptime(date_string_with_year, "%Y %b %d %H:%M:%S")
 
-
         # Extracting values from log entry
         date_time = datetime_object
         ip_address = a[0]
@@ -45,21 +43,20 @@ class Command(BaseCommand):
         num_records = int(a[6])
         record_size = int(a[7])
 
-
         # Get location information
         coordinates = self.get_coordinates_from_ip(ip_address)
         print(coordinates)
         if coordinates:
             latitude, longitude = coordinates
-            location = geohash2.encode(latitude, longitude)
         else:
-            location = ""
+            latitude = ""
+            longitude = ""
 
         # Check if the entry already exists in the database
         if not DNSLog.objects.filter(date_time=date_time, ip_address=ip_address,
                                      domain_name=domain_name, record_type=record_type, query_class=query_class,
                                      query_type=query_type, query_time=query_time, num_records=num_records,
-                                     record_size=record_size, location=location).exists():
+                                     record_size=record_size, latitude=latitude, longitude = longitude).exists():
 
             # Create and save a new DNSLog object
             dns_log_entry = DNSLog.objects.create(
@@ -72,7 +69,8 @@ class Command(BaseCommand):
                 query_time=query_time,
                 num_records=num_records,
                 record_size=record_size,
-                location=location
+                latitude=latitude,
+                longitude = longitude
             )
             dns_log_entry.save()
 

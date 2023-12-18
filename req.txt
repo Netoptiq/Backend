@@ -6,9 +6,7 @@ scapy
 requests
 django-cors-headers
 psycopg2-binary
-channels
-djangochannelsrestframework
-geohash2
+# channels
+# djangochannelsrestframework
 pandas
-channels
 django-extensions
