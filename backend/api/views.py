@@ -262,9 +262,9 @@ class Domain_data(APIView):
     
 class Domain_Reputation(APIView):
     def post(self,request):
-        host = request.data.get('domain')
+        domain = request.data.get('domain')
         apivoid_key = "80a92298bdd58e4a6bf116d0eb49587c63b486fc"
-        url = f"https://endpoint.apivoid.com/domainbl/v1/pay-as-you-go/?key={apivoid_key}&host={host}"
+        url = f"https://endpoint.apivoid.com/domainbl/v1/pay-as-you-go/?key={apivoid_key}&host={domain}"
         response = requests.get(url)
         response.raise_for_status()
         
@@ -274,7 +274,6 @@ class Domain_Reputation(APIView):
 class WhoisAPI(APIView):
     def post(self,request):
         domain = request.data.get('domain')
-        domain = 'www.google.com'
         url = 'https://whoisjsonapi.com/v1/'+domain
         headers = {
             'Authorization': 'Bearer TvL6oFeiLyV2cmRlvg8NTbAGUC2G0F34ns2NuGLHkmv8Li8vIs6yDz6dqxRHYxf'
@@ -296,10 +295,14 @@ class BlacklistView(APIView):
         return Response(serializers.data)
     
     def post(self,request):
-        serializer = BlacklistSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        domain = request.data.get('domain')
+        if Blacklist.objects.filter(domain = domain):
+            return Response("Already exist in db", status=status.HTTP_200_OK)
+        else:
+            serializer = BlacklistSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 

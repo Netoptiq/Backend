@@ -33,6 +33,7 @@ class Command(BaseCommand):
         date_string_with_year = f"2023 {timestamp}"
         datetime_object = datetime.strptime(date_string_with_year, "%Y %b %d %H:%M:%S")
 
+
         # Extracting values from log entry
         date_time = datetime_object
         ip_address = a[0]
@@ -43,6 +44,7 @@ class Command(BaseCommand):
         query_time = float(a[5])
         num_records = int(a[6])
         record_size = int(a[7])
+
 
         # Get location information
         coordinates = self.get_coordinates_from_ip(ip_address)
