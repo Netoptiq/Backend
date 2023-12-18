@@ -10,3 +10,4 @@ psycopg2-binary
 # djangochannelsrestframework
 pandas
 django-extensions
+djangorestframework_simplejwt

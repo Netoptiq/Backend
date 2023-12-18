@@ -7,6 +7,8 @@ from rest_framework.pagination import PageNumberPagination
 from scapy.all import rdpcap, IP, TCP, UDP
 
 from rest_framework import status
+from rest_framework import generics
+
 from .models import *
 from .Serializers import *
 
@@ -101,6 +103,7 @@ import json
 ###########################################################################################################################
 
 #realtime log
+
 
 
 class LogView(APIView): #domain visited
@@ -317,7 +320,6 @@ class BlacklistView(APIView):
     
 
 
-
 class DNSLogReport(APIView):
     def post(self, request, *args, **kwargs):
         start_date_time = request.data.get('start_date_time')
@@ -359,3 +361,99 @@ class Tsv(APIView):
             return Response({"error": f"Failed to parse JSON from TSV file: {str(e)}"}, status=400)
         return Response(data_from_csv)
 
+
+from django.contrib.auth import authenticate
+class Test(APIView):
+    def post(self,request):
+        username = 'admin1'
+        password = 'admin1'
+
+        # Authenticate user
+        user = authenticate(username=username, password=password)
+
+        if user is not None:
+            # Check if the user account is active
+            if user.is_active:
+                # The user account is active, proceed with authentication
+                return Response("User is active. Authentication successful.")
+            else:
+                # The user account is not active
+                return Response("User account is not active.")
+        else:
+            # Authentication failed
+            return Response("Authentication failed. No user found with the given credentials.")
+
+
+
+import jwt, datetime
+from rest_framework.exceptions import AuthenticationFailed
+
+SECRET = '2egfi2h9urawdjfn'
+
+
+class RegisterView(APIView):
+
+    def post(self, request):
+        serializer = UserSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+
+
+class LoginView(APIView):
+    def post(self, request):
+        email = request.data['email']
+        password = request.data['password']
+
+        user = User.objects.filter(email=email).first()
+
+        if user is None:
+            raise AuthenticationFailed('User not found!')
+
+        if not user.check_password(password):
+            raise AuthenticationFailed('Incorrect password!')
+
+        payload = {
+            'id': user.id,
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=240),
+            'iat': datetime.datetime.utcnow()
+        }
+
+        token = jwt.encode(payload, SECRET, algorithm='HS256')
+
+        response = Response()
+
+        response.set_cookie(key='jwt', value=token, httponly=True)
+        response.data = {
+            'jwt': token
+        }
+        return response
+
+
+class UserView(APIView):
+
+    def get(self, request):
+        token = request.COOKIES.get('jwt')
+
+        if not token:
+            raise AuthenticationFailed('Unauthenticated!')
+
+        try:
+            payload = jwt.decode(token, SECRET, algorithms=['HS256'])
+        except jwt.ExpiredSignatureError:
+            raise AuthenticationFailed('Unauthenticated!')
+
+        user = User.objects.filter(id=payload['id']).first()
+        serializer = UserSerializer(user)
+        return Response(serializer.data)
+
+
+class LogoutView(APIView):
+    def post(self, request):
+        print("***")
+        response = Response()
+        response.delete_cookie('jwt')
+        response.data = {
+            'message': 'success'
+        }
+        return response

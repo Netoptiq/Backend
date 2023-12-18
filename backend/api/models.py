@@ -4,8 +4,19 @@ from django.utils import timezone
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 import fcntl
-from django.db.models.signals import post_save
-from django.dispatch import receiver
+
+
+from django.contrib.auth.models import AbstractUser
+
+class User(AbstractUser):
+    name = models.CharField(max_length=255)
+    email = models.CharField(max_length=255, unique=True)
+    password = models.CharField(max_length=255)
+    permission = models.CharField(max_length=255, default="")
+    username = None
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
 
 # class Domaincount(models.Model):
 #     domain = models.CharField(max_length=100)

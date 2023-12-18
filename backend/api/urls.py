@@ -19,6 +19,13 @@ urlpatterns = [
     path('rdomain/',Domain_Reputation.as_view(), name = 'api void'),
     path('log1/',LogView.as_view(), name = 'see all domain view'),
     path('location/',LocationAPI.as_view(), name = 'see all domain view'),
-    
+    # path('register/', UserRegistrationView.as_view(), name='user-registration'),
+    path('test/', Test.as_view(), name='user-registration'),
+
     path('log/', LogListPagenationAPIView.as_view(), name='see all domain view by 10'),#http://localhost:8000/api/log1/?page=1
+
+    path('register', RegisterView.as_view()),
+    path('login', LoginView.as_view()),
+    path('user', UserView.as_view()),
+    path('logout', LogoutView.as_view()),
 ]
