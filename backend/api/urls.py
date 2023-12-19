@@ -24,8 +24,8 @@ urlpatterns = [
 
     path('log/', LogListPagenationAPIView.as_view(), name='see all domain view by 10'),#http://localhost:8000/api/log1/?page=1
 
-    path('register', RegisterView.as_view()),
-    path('login', LoginView.as_view()),
-    path('user', UserView.as_view()),
-    path('logout', LogoutView.as_view()),
+    # path('register', RegisterView.as_view()),
+    # path('login', LoginView.as_view()),
+    # path('user', UserView.as_view()),
+    # path('logout', LogoutView.as_view()),
 ]

@@ -6,17 +6,17 @@ from django.dispatch import receiver
 import fcntl
 
 
-from django.contrib.auth.models import AbstractUser
+# from django.contrib.auth.models import AbstractUser
 
-class User(AbstractUser):
-    name = models.CharField(max_length=255)
-    email = models.CharField(max_length=255, unique=True)
-    password = models.CharField(max_length=255)
-    permission = models.CharField(max_length=255, default="")
-    username = None
+# class User(AbstractUser):
+#     name = models.CharField(max_length=255)
+#     email = models.CharField(max_length=255, unique=True)
+#     password = models.CharField(max_length=255)
+#     permission = models.CharField(max_length=255, default="")
+#     username = None
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
+#     USERNAME_FIELD = 'email'
+#     REQUIRED_FIELDS = []
 
 # class Domaincount(models.Model):
 #     domain = models.CharField(max_length=100)

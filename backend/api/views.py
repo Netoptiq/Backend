@@ -385,75 +385,75 @@ class Test(APIView):
 
 
 
-import jwt, datetime
-from rest_framework.exceptions import AuthenticationFailed
+# import jwt, datetime
+# from rest_framework.exceptions import AuthenticationFailed
 
-SECRET = '2egfi2h9urawdjfn'
-
-
-class RegisterView(APIView):
-
-    def post(self, request):
-        serializer = UserSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data)
+# SECRET = '2egfi2h9urawdjfn'
 
 
-class LoginView(APIView):
-    def post(self, request):
-        email = request.data['email']
-        password = request.data['password']
+# class RegisterView(APIView):
 
-        user = User.objects.filter(email=email).first()
-
-        if user is None:
-            raise AuthenticationFailed('User not found!')
-
-        if not user.check_password(password):
-            raise AuthenticationFailed('Incorrect password!')
-
-        payload = {
-            'id': user.id,
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=240),
-            'iat': datetime.datetime.utcnow()
-        }
-
-        token = jwt.encode(payload, SECRET, algorithm='HS256')
-
-        response = Response()
-
-        response.set_cookie(key='jwt', value=token, httponly=True)
-        response.data = {
-            'jwt': token
-        }
-        return response
+#     def post(self, request):
+#         serializer = UserSerializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#         serializer.save()
+#         return Response(serializer.data)
 
 
-class UserView(APIView):
+# class LoginView(APIView):
+#     def post(self, request):
+#         email = request.data['email']
+#         password = request.data['password']
 
-    def get(self, request):
-        token = request.COOKIES.get('jwt')
+#         user = User.objects.filter(email=email).first()
 
-        if not token:
-            raise AuthenticationFailed('Unauthenticated!')
+#         if user is None:
+#             raise AuthenticationFailed('User not found!')
 
-        try:
-            payload = jwt.decode(token, SECRET, algorithms=['HS256'])
-        except jwt.ExpiredSignatureError:
-            raise AuthenticationFailed('Unauthenticated!')
+#         if not user.check_password(password):
+#             raise AuthenticationFailed('Incorrect password!')
 
-        user = User.objects.filter(id=payload['id']).first()
-        serializer = UserSerializer(user)
-        return Response(serializer.data)
+#         payload = {
+#             'id': user.id,
+#             'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=240),
+#             'iat': datetime.datetime.utcnow()
+#         }
+
+#         token = jwt.encode(payload, SECRET, algorithm='HS256')
+
+#         response = Response()
+
+#         response.set_cookie(key='jwt', value=token, httponly=True)
+#         response.data = {
+#             'jwt': token
+#         }
+#         return response
 
 
-class LogoutView(APIView):
-    def post(self, request):
-        print("***")
-        response = Response()
-        response.delete_cookie('jwt')
-        response.data = {
-            'message': 'success'
-        }
-        return response
+# class UserView(APIView):
+
+#     def get(self, request):
+#         token = request.COOKIES.get('jwt')
+
+#         if not token:
+#             raise AuthenticationFailed('Unauthenticated!')
+
+#         try:
+#             payload = jwt.decode(token, SECRET, algorithms=['HS256'])
+#         except jwt.ExpiredSignatureError:
+#             raise AuthenticationFailed('Unauthenticated!')
+
+#         user = User.objects.filter(id=payload['id']).first()
+#         serializer = UserSerializer(user)
+#         return Response(serializer.data)
+
+
+# class LogoutView(APIView):
+#     def post(self, request):
+#         print("***")
+#         response = Response()
+#         response.delete_cookie('jwt')
+#         response.data = {
+#             'message': 'success'
+#         }
+#         return response
