@@ -4,6 +4,26 @@ from .models import *
 
 
 
+
+
+# serializers.py
+
+class DNSLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DNSLog
+        fields = '__all__'
+
+class BlacklistSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Blacklist
+        fields = '__all__'
+
+class LocationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DNSLog
+        fields = ('ip_address','domain_name')
+
+
 # class QuerySerializer(serializers.ModelSerializer):
 #     class Meta:
 #         model = Query
@@ -36,26 +56,6 @@ from .models import *
 # class PcapFileSerializer(serializers.Serializer):
 #     pcap_file = serializers.FileField()
     
-
-# serializers.py
-
-class DNSLogSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = DNSLog
-        fields = '__all__'
-
-class BlacklistSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Blacklist
-        fields = '__all__'
-
-class LocationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = DNSLog
-        fields = ('ip_address','domain_name')
-
-
-
 
 # class UserSerializer(serializers.ModelSerializer):
 #     class Meta:

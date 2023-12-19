@@ -4,6 +4,47 @@ from django.utils import timezone
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 import fcntl
+import os
+
+class DNSLog(models.Model):
+    date_time = models.DateTimeField()
+    ip_address = models.GenericIPAddressField()
+    domain_name = models.CharField(max_length=255)
+    record_type = models.CharField(max_length=10)
+    query_class = models.CharField(max_length=10)
+    query_type = models.CharField(max_length=10)
+    query_time = models.FloatField()
+    num_records = models.IntegerField()
+    record_size = models.IntegerField()
+    latitude = models.CharField(max_length=200,blank="",default='')
+    longitude = models.CharField(max_length=200,blank="",default='')
+
+    def __str__(self):
+        return f"{self.date_time} - {self.process_name} - {self.domain_name}"
+
+
+file_path = '/home/bewin/Projects/Backend-1/Sample/blacklist.conf'
+# file_path = '/etc/unbound/block.conf'
+
+class Blacklist(models.Model):
+    domain = models.CharField(max_length=200)
+
+    def save(self, *args, **kwargs):
+        with open(file_path, "a") as file:
+            try:
+                print(self.domain)
+                fcntl.flock(file, fcntl.LOCK_EX)
+                file.write(f'local-zone: "{self.domain}" redirect\n')
+                file.write(f'local-data: "{self.domain} A 0.0.0.0"\n')
+            finally:
+                fcntl.flock(file, fcntl.LOCK_UN)
+        super().save(*args, **kwargs)
+
+
+
+
+
+
 
 
 # from django.contrib.auth.models import AbstractUser
@@ -66,41 +107,6 @@ import fcntl
 #         if not created:
 #             domain_count.count += 1
 #             domain_count.save()
-
-
-class DNSLog(models.Model):
-    date_time = models.DateTimeField()
-    ip_address = models.GenericIPAddressField()
-    domain_name = models.CharField(max_length=255)
-    record_type = models.CharField(max_length=10)
-    query_class = models.CharField(max_length=10)
-    query_type = models.CharField(max_length=10)
-    query_time = models.FloatField()
-    num_records = models.IntegerField()
-    record_size = models.IntegerField()
-    latitude = models.CharField(max_length=200,blank="",default='')
-    longitude = models.CharField(max_length=200,blank="",default='')
-
-    def __str__(self):
-        return f"{self.date_time} - {self.process_name} - {self.domain_name}"
-
-
-# file_path = '/home/bewin/Projects/Backend-1/Sample/blacklist.conf'
-file_path = 
-class Blacklist(models.Model):
-    domain = models.CharField(max_length=200)
-
-    def save(self, *args, **kwargs):
-        with open(file_path, "a") as file:
-            try:
-                print(self.domain)
-                fcntl.flock(file, fcntl.LOCK_EX)
-                file.write(f'local-zone: "{self.domain}" redirect\n')
-                file.write(f'local-data: "{self.domain} A 13.233.72.246"\n')
-            finally:
-                fcntl.flock(file, fcntl.LOCK_UN)
-        super().save(*args, **kwargs)
-
 
 # from django.contrib.auth.models import AbstractUser
 

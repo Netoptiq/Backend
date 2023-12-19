@@ -4,10 +4,9 @@ from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 
 # Create your views here.
-from scapy.all import rdpcap, IP, TCP, UDP, DNS
+from scapy.all import rdpcap, IP, TCP, UDP, DNS, DNSQR
 
 from rest_framework import status
-from rest_framework import generics
 
 from .models import *
 from .Serializers import *
@@ -15,6 +14,8 @@ from .Serializers import *
 import requests
 import pandas as pd
 import json
+from scapy.all import *
+
 
 # from collections import deque
 # from datetime import datetime, timedelta
@@ -25,29 +26,6 @@ import json
 # from django.core.files.storage import default_storage
 # import os
 # import re
-
-
-
-
-class LogView(APIView): #domain visited
-    def get(self, request, format=None):
-        logs = DNSLog.objects.all()
-        serializer = DNSLogSerializer(logs, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    
-
-class LocationAPI(APIView): #domain visited
-    def get(self, request, format=None):
-        dns_logs = DNSLog.objects.all()
-        serializer = DNSLogSerializer(dns_logs, many=True)
-        data = serializer.data
-
-        # Extracting the desired values
-        result = [{'ip_address': entry['ip_address'], 'domain_name': entry['domain_name']} for entry in data]
-
-        return Response(result)
-
-
 
 
 class ReverseOrderPageNumberPagination(PageNumberPagination):
@@ -71,17 +49,80 @@ class BlockListPagenationAPIView(APIView): #log with pagination
         result_page = paginator.paginate_queryset(logs, request)
         serializer = BlacklistSerializer(result_page, many=True)
         return paginator.get_paginated_response(serializer.data)
+    
+    def post(self,request):
+        domain = request.data.get('domain')
+        if Blacklist.objects.filter(domain = domain):
+            return Response("Already exist in db", status=status.HTTP_200_OK)
+        else:
+            serializer = BlacklistSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+    def delete(self, request, instance_id, format=None):
+            entry = Blacklist.objects.get(pk=instance_id)
+            domain_to_delete = entry.domain
+            conf_file_path = '/home/bewin/Desktop/Projects/Backend-1/Sample/output.conf'
+            try:
+                with open(conf_file_path, 'r') as file:
+                    conf_content = file.readlines()
+                found = False
+                updated_conf_content = []
+                for line in conf_content:
+                    if domain_to_delete in line:
+                        found = True
+                        continue
+                    updated_conf_content.append(line)
+
+                if not found:
+                    return Response({"detail": f"The domain '{domain_to_delete}' does not exist in the conf file."}, status=status.HTTP_404_NOT_FOUND)
+                with open(conf_file_path, 'w') as file:
+                    file.writelines(updated_conf_content)
+
+                return Response({"detail": f"Successfully deleted the domain '{domain_to_delete}' from the conf file."}, status=status.HTTP_200_OK)
+            except Exception as e:
+                return Response({"detail": f"An error occurred: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class pcaptest(APIView):#pcap analysis
+class BlacklistSearch(APIView):
+    def post(self,request):
+        domain = request.data.get('domain')
+        data = Blacklist.objects.filter(domain=domain)
+        serializer = BlacklistSerializer(data, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+
+class LogView(APIView): #domain visited
+    def get(self, request, format=None):
+        logs = DNSLog.objects.all()
+        serializer = DNSLogSerializer(logs, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+class LocationAPI(APIView): #domain visited
+    def get(self, request, format=None):
+        dns_logs = DNSLog.objects.all()
+        serializer = DNSLogSerializer(dns_logs, many=True)
+        data = serializer.data
+        result = [{'ip_address': entry['ip_address'], 'domain_name': entry['domain_name']} for entry in data]
+        return Response(result)
+
+
+
+class PcapAnalysis(APIView):
     def post(self, request):
         pcap_file = request.FILES['pcap_file']
         packets = rdpcap(pcap_file)
         parsed_packets = []
         i = 0
+
         for packet in packets:
             if packet.haslayer(DNS):
-                i +=1
+                i += 1
                 packet_len = packet.len if 'len' in packet else ''
                 packet_info = {
                     'id': i,
@@ -90,9 +131,19 @@ class pcaptest(APIView):#pcap analysis
                     'dst': packet[IP].dst if packet.haslayer(IP) else '',
                     'len': packet_len,
                     'malware': False,
+                    'domain': '',
+                    'takake_query': None,
                 }
-                if packet_info['dst'] !='' and Blacklist.objects.filter(domain=packet_info['dst']).exists():
+                print('sddd')
+                # Check for takake domain or blacklist match
+                if packet_info['dst'] != '' and (Blacklist.objects.filter(domain=packet_info['dst']).exists() or 'takake' in packet_info['dst']):
                     packet_info['malware'] = True
+
+                if DNS in packet and packet.haslayer(DNSQR):
+                    dns_name = packet[DNSQR].qname.decode('utf-8')
+                    packet_info['domain'] = dns_name
+
+                # Protocol and port information
                 if packet.haslayer(TCP):
                     packet_info['proto'] = 'TCP'
                     packet_info['sport'] = packet[TCP].sport
@@ -105,12 +156,17 @@ class pcaptest(APIView):#pcap analysis
                     packet_info['proto'] = ''
                     packet_info['sport'] = ''
                     packet_info['dport'] = ''
+
                 parsed_packets.append(packet_info)
-        return Response({'packets': parsed_packets})
+                print(i)
+        return Response({'packets': parsed_packets}, status=status.HTTP_200_OK)
 
 
 
-class PcapFileParseView(APIView):#pcap analysis
+
+
+
+class PcapAnalysisold(APIView):#pcap analysis
     def post(self, request):
         pcap_file = request.FILES['pcap_file']
         packets = rdpcap(pcap_file)
@@ -121,6 +177,7 @@ class PcapFileParseView(APIView):#pcap analysis
             i+=1
             count=0
             packet_len = packet.len if 'len' in packet else ''
+            
             packet_info = {
                 'id': i,
                 'time': packet.time,
@@ -148,6 +205,7 @@ class PcapFileParseView(APIView):#pcap analysis
         return Response(count)
 
 
+
 class Domain_data(APIView):
     def post(self, request):
         domain = request.data.get('domain')
@@ -170,7 +228,6 @@ class Domain_Reputation(APIView):
         response.raise_for_status()
         
         return Response(response.json())
-
 
 class WhoisAPI(APIView):
     def post(self,request):
@@ -207,7 +264,6 @@ class BlacklistView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
-
 class DNSLogReport(APIView):
     def post(self, request, *args, **kwargs):
         start_date_time = request.data.get('start_date_time')
@@ -238,31 +294,17 @@ class DNSLogReport(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
 
-
-
-
-class TSV(APIView):
+class ZeekLogAnalysis(APIView):
     def post(self, request):
         try:
-            # Retrieve the uploaded file from the request
             uploaded_file = request.FILES['file']
-
-            # Read the content of the uploaded file
             data = uploaded_file.read().decode('utf-8')
-
-            # Split the data into individual lines
             lines = data.strip().split('\n')
-
-            # Parse each line as JSON and store in a list
             parsed_data = []
             for line in lines:
                 json_data = json.loads(line)
-                domain = json_data.get('query', '')  # Adjust the field based on your JSON structure
-                
-                # Check if the domain is in the blacklist
+                domain = json_data.get('query', '') 
                 is_blocked = Blacklist.objects.filter(domain=domain).exists()
-
-                # Add a field indicating domain availability
                 json_data['is_available'] = not is_blocked
                 parsed_data.append(json_data)
 
@@ -275,10 +317,52 @@ class TSV(APIView):
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     
-# class LogListAPIView(APIView):#all log
+
+
+
+# class PcapAnalysis(APIView):#withoud domain
+#     def post(self, request):
+#         pcap_file = request.FILES['pcap_file']
+#         packets = rdpcap(pcap_file)
+#         parsed_packets = []
+#         i = 0
+#         for packet in packets:
+#             if packet.haslayer(DNS):
+#                 i +=1
+#                 packet_len = packet.len if 'len' in packet else ''
+#                 packet_info = {
+#                     'id': i,
+#                     'time': packet.time,
+#                     'src': packet[IP].src if packet.haslayer(IP) else '',
+#                     'dst': packet[IP].dst if packet.haslayer(IP) else '',
+#                     'len': packet_len,
+#                     'malware': False,
+#                     'domain': 
+#                 }
+#                 if packet_info['dst'] !='' and Blacklist.objects.filter(domain=packet_info['dst']).exists():
+#                     packet_info['malware'] = True
+#                 if packet.haslayer(TCP):
+#                     packet_info['proto'] = 'TCP'
+#                     packet_info['sport'] = packet[TCP].sport
+#                     packet_info['dport'] = packet[TCP].dport
+#                 elif packet.haslayer(UDP):
+#                     packet_info['proto'] = 'UDP'
+#                     packet_info['sport'] = packet[UDP].sport
+#                     packet_info['dport'] = packet[UDP].dport
+#                 else:
+#                     packet_info['proto'] = ''
+#                     packet_info['sport'] = ''
+#                     packet_info['dport'] = ''
+#                 parsed_packets.append(packet_info)
+#         return Response({'packets': parsed_packets})
+    
+
+
+
+# class Test(APIView):#all log
 #     def get(self, request, format=None):
-#         logs = Log.objects.all()
-#         serializer = LogSerializer(logs, many=True)
+#         logs = Blacklist.objects.count()
+#         serializer = BlacklistSerializer(logs, many=True)
 #         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
