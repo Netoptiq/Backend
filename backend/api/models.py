@@ -85,21 +85,21 @@ class DNSLog(models.Model):
         return f"{self.date_time} - {self.process_name} - {self.domain_name}"
 
 
-file_path = '/home/bewin/Projects/Backend-1/Sample/blacklist.conf'
-
+# file_path = '/home/bewin/Projects/Backend-1/Sample/blacklist.conf'
+file_path = 
 class Blacklist(models.Model):
     domain = models.CharField(max_length=200)
 
-    # def save(self, *args, **kwargs):
-    #     with open(file_path, "a") as file:
-    #         try:
-    #             print(self.domain)
-    #             fcntl.flock(file, fcntl.LOCK_EX)
-    #             file.write(f'local-zone: "{self.domain}" redirect\n')
-    #             file.write(f'local-data: "{self.domain} A 13.233.72.246"\n')
-    #         finally:
-    #             fcntl.flock(file, fcntl.LOCK_UN)
-    #     super().save(*args, **kwargs)
+    def save(self, *args, **kwargs):
+        with open(file_path, "a") as file:
+            try:
+                print(self.domain)
+                fcntl.flock(file, fcntl.LOCK_EX)
+                file.write(f'local-zone: "{self.domain}" redirect\n')
+                file.write(f'local-data: "{self.domain} A 13.233.72.246"\n')
+            finally:
+                fcntl.flock(file, fcntl.LOCK_UN)
+        super().save(*args, **kwargs)
 
 
 # from django.contrib.auth.models import AbstractUser
