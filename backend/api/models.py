@@ -70,7 +70,6 @@ import fcntl
 
 class DNSLog(models.Model):
     date_time = models.DateTimeField()
-    # process_name = models.CharField(max_length=255)
     ip_address = models.GenericIPAddressField()
     domain_name = models.CharField(max_length=255)
     record_type = models.CharField(max_length=10)
@@ -97,8 +96,25 @@ class Blacklist(models.Model):
     #             print(self.domain)
     #             fcntl.flock(file, fcntl.LOCK_EX)
     #             file.write(f'local-zone: "{self.domain}" redirect\n')
-    #             file.write(f'local-data: "{self.domain} A 127.0.0.1"\n')
+    #             file.write(f'local-data: "{self.domain} A 13.233.72.246"\n')
     #         finally:
     #             fcntl.flock(file, fcntl.LOCK_UN)
     #     super().save(*args, **kwargs)
+
+
+# from django.contrib.auth.models import AbstractUser
+
+# class User(AbstractUser):
+#     MALE = 'Male'
+#     FEMALE = 'Female'
+#     GENDER_IN_CHOICES = [
+#         (MALE, 'Male'),
+#         (FEMALE, 'Female'),
+#     ]
+#     phone_number = models.CharField(max_length=20, blank=True, null=True, unique=True)
+#     gender = models.CharField(max_length=6, choices=GENDER_IN_CHOICES, null=True, blank=True)
+#     country = models.CharField(max_length=120, null=True, blank=True)
+#     city = models.CharField(max_length=120, null=True, blank=True)
+#     state = models.CharField(max_length=120, null=True, blank=True)
+#     is_approved_to_be_in_touch = models.BooleanField(default=False)
         

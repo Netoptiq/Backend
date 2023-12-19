@@ -10,7 +10,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         # Path to your log file
-        log_file_path = '/home/bewin/Projects/Backend-1/Sample/blacklist.conf'
+        log_file_path = '/home/bewin/Desktop/Projects/Backend-1/block.conf'
         with open(log_file_path, 'r') as log_file:
             log_content = log_file.read()
 
@@ -22,9 +22,11 @@ class Command(BaseCommand):
 
         # Iterate through matches and update Blacklist database
         for match in matches:
-            domain_or_ip = match
-            Blacklist.objects.create(domain=domain_or_ip)
 
+            domain_or_ip = match
+            if not Blacklist.objects.filter(domain = domain_or_ip).exists():
+                Blacklist.objects.create(domain=domain_or_ip)
+                print(domain_or_ip)
         self.stdout.write(self.style.SUCCESS('Blacklist updated successfully'))
 
 

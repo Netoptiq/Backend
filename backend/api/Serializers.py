@@ -55,6 +55,8 @@ class LocationSerializer(serializers.ModelSerializer):
         fields = ('ip_address','domain_name')
 
 
+
+
 # class UserSerializer(serializers.ModelSerializer):
 #     class Meta:
 #         model = User
@@ -70,3 +72,10 @@ class LocationSerializer(serializers.ModelSerializer):
 #             instance.set_password(password)
 #         instance.save()
 #         return instance
+        
+
+# from rest_framework import serializers
+
+# class ObtainTokenSerializer(serializers.Serializer):
+#     username = serializers.CharField()
+#     password = serializers.CharField()

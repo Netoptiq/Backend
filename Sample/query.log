@@ -27,7 +27,6 @@ Dec 08 06:57:00 unbound[20715:1] query: 45.13.119.150 sl. ANY IN
 Dec 08 06:57:00 unbound[20715:1] reply: 45.13.119.150 sl. ANY IN NOTIMPL 0.000000 0 31
 Dec 08 06:56:00 unbound[20715:1] query: 45.13.119.149 sl. ANY IN
 Dec 08 06:56:00 unbound[20715:1] reply: 45.13.119.149 sl. ANY IN NOTIMPL 0.000000 0 31
-
 Dec 07 03:57:16 unbound[20715:2] reply: 106.195.38.38 apresolve.spotify.com. A IN NOERROR 0.000000 1 55
 Dec 07 03:57:16 unbound[20715:0] reply: 106.195.38.38 player.vimeo.com. A IN NOERROR 0.158232 0 115
 Dec 07 03:57:16 unbound[20715:2] reply: 106.195.38.38 push.services.mozilla.com. A IN NOERROR 0.197628 0 97

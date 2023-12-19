@@ -5,7 +5,7 @@ from api.models import DNSLog
 from datetime import datetime
 import time
 
-log_file_path = "/home/bewin/Projects/Backend-1/Sample/unbound.log"
+log_file_path = "/home/bewin/Projects/Backend-1/Sample/query.log"
 
 class Command(BaseCommand):
     help = 'Check and add DNS log entries to the database'

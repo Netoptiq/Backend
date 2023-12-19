@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 
 # Create your views here.
-from scapy.all import rdpcap, IP, TCP, UDP
+from scapy.all import rdpcap, IP, TCP, UDP, DNS
 
 from rest_framework import status
 from rest_framework import generics
@@ -224,6 +224,43 @@ class LogListPagenationAPIView(APIView): #log with pagination
 
 
 
+class pcaptest(APIView):#pcap analysis
+    def post(self, request):
+        pcap_file = request.FILES['pcap_file']
+        packets = rdpcap(pcap_file)
+        parsed_packets = []
+        i = 0
+        for packet in packets:
+            if packet.haslayer(DNS):
+                i +=1
+                packet_len = packet.len if 'len' in packet else ''
+                packet_info = {
+                    'id': i,
+                    'time': packet.time,
+                    'src': packet[IP].src if packet.haslayer(IP) else '',
+                    'dst': packet[IP].dst if packet.haslayer(IP) else '',
+                    'len': packet_len,
+                    'malware': False,
+                }
+                if packet_info['dst'] !='' and Blacklist.objects.filter(domain=packet_info['dst']).exists():
+                    packet_info['malware'] = True
+                if packet.haslayer(TCP):
+                    packet_info['proto'] = 'TCP'
+                    packet_info['sport'] = packet[TCP].sport
+                    packet_info['dport'] = packet[TCP].dport
+                elif packet.haslayer(UDP):
+                    packet_info['proto'] = 'UDP'
+                    packet_info['sport'] = packet[UDP].sport
+                    packet_info['dport'] = packet[UDP].dport
+                else:
+                    packet_info['proto'] = ''
+                    packet_info['sport'] = ''
+                    packet_info['dport'] = ''
+                parsed_packets.append(packet_info)
+        return Response({'packets': parsed_packets})
+
+
+
 class PcapFileParseView(APIView):#pcap analysis
     def post(self, request):
         pcap_file = request.FILES['pcap_file']
@@ -233,6 +270,7 @@ class PcapFileParseView(APIView):#pcap analysis
         for packet in packets:
             print(packet)
             i+=1
+            count=0
             packet_len = packet.len if 'len' in packet else ''
             packet_info = {
                 'id': i,
@@ -257,14 +295,14 @@ class PcapFileParseView(APIView):#pcap analysis
                 packet_info['sport'] = ''
                 packet_info['dport'] = ''
             parsed_packets.append(packet_info)
-        return Response({'packets': parsed_packets})
+        # return Response({'packets': parsed_packets})
+        return Response(count)
 
 
 class Domain_data(APIView):
     def post(self, request):
         domain = request.data.get('domain')
         url = "https://www.virustotal.com/api/v3/domains/"+domain
-        print(url)
         headers = {
             "accept": "application/json",
             "x-apikey": "448a7aa846555d7e5feeb97fe7e608e14cf903572b5472301ba8af9d1497a61e"
@@ -457,3 +495,43 @@ class Test(APIView):
 #             'message': 'success'
 #         }
 #         return response
+        
+# from django.contrib.auth import get_user_model
+# from rest_framework import views, permissions, status
+# from rest_framework.permissions import IsAuthenticated
+# from rest_framework.response import Response
+
+# from .Serializers import ObtainTokenSerializer
+# from .Serializers import UserSerializer
+# from .authentication import JWTAuthentication
+
+# User = get_user_model()
+
+# class ObtainTokenView(views.APIView):
+#     permission_classes = [permissions.AllowAny]
+#     serializer_class = ObtainTokenSerializer
+
+#     def post(self, request, *args, **kwargs):
+#         serializer = self.serializer_class(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+
+#         username_or_phone_number = serializer.validated_data.get('username')
+#         password = serializer.validated_data.get('password')
+
+#         user = User.objects.filter(username=username_or_phone_number).first()
+#         if user is None:
+#             user = User.objects.filter(phone_number=username_or_phone_number).first()
+
+#         if user is None or not user.check_password(password):
+#             return Response({'message': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
+
+#         # Generate the JWT token
+#         jwt_token = JWTAuthentication.create_jwt(user)
+
+#         return Response({'token': jwt_token})
+        
+
+
+
+class stixtaxi(APIView):
+    pass

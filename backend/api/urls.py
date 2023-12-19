@@ -21,6 +21,7 @@ urlpatterns = [
     path('location/',LocationAPI.as_view(), name = 'see all domain view'),
     # path('register/', UserRegistrationView.as_view(), name='user-registration'),
     path('test/', Test.as_view(), name='user-registration'),
+    path('te/', pcaptest.as_view(), name='user-registration'),
 
     path('log/', LogListPagenationAPIView.as_view(), name='see all domain view by 10'),#http://localhost:8000/api/log1/?page=1
 
