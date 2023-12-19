@@ -8,7 +8,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         # Path to your log file
         log_file_path = '/home/bewin/Desktop/Projects/Backend-1/block.conf'
-        lines_to_skip = 62138
+        lines_to_skip = 120000
         # Open the log file
         with open(log_file_path, 'r') as log_file:
             # Regular expression to extract local-zone and domain/IP
