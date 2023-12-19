@@ -222,6 +222,13 @@ class LogListPagenationAPIView(APIView): #log with pagination
         serializer = DNSLogSerializer(result_page, many=True)
         return paginator.get_paginated_response(serializer.data)
 
+class BlockListPagenationAPIView(APIView): #log with pagination
+    def get(self, request, format=None):
+        logs = Blacklist.objects.all().order_by('-id')  # Assuming there's a timestamp field for sorting
+        paginator = ReverseOrderPageNumberPagination()
+        result_page = paginator.paginate_queryset(logs, request)
+        serializer = BlacklistSerializer(result_page, many=True)
+        return paginator.get_paginated_response(serializer.data)
 
 
 class pcaptest(APIView):#pcap analysis
@@ -368,7 +375,7 @@ class DNSLogReport(APIView):
                 {"error": "Please provide both start_date_time and end_date_time in the request data."},
                 status=status.HTTP_400_BAD_REQUEST
             )
-
+        
         try:
             start_date_time = timezone.datetime.fromisoformat(start_date_time)
             end_date_time = timezone.datetime.fromisoformat(end_date_time)
@@ -533,5 +540,15 @@ class Test(APIView):
 
 
 
-class stixtaxi(APIView):
-    pass
+class TestAPIView(APIView):
+    def post(self, request):
+            try:
+                uploaded_file = request.FILES['file']
+                data = uploaded_file.read().decode('utf-8')
+                lines = data.strip().split('\n')
+                parsed_data = [json.loads(line) for line in lines]
+                return Response(parsed_data, status=status.HTTP_200_OK)
+            except KeyError:
+                return Response({'error': 'File not provided'}, status=status.HTTP_400_BAD_REQUEST)
+            except Exception as e:
+                return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

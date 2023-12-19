@@ -9,7 +9,7 @@ urlpatterns = [
     # path('highlyuseduser/',Highlyusedusers.as_view()),
     # path('logs/', LogListAPIView.as_view(), name='log-list'),
 
-    path('blacklist/',BlacklistView.as_view(), name = 'GET or POST blocklist domains'),
+    path('blacklist/',BlockListPagenationAPIView.as_view(), name = 'GET or POST blocklist domains'),
     path('report/',DNSLogReport.as_view(), name = 'Give all details between paticular date and time'),
     path('tsv/',Tsv.as_view(), name = 'find a zeek tsv format file'),
 
@@ -24,9 +24,9 @@ urlpatterns = [
     path('te/', pcaptest.as_view(), name='user-registration'),
 
     path('log/', LogListPagenationAPIView.as_view(), name='see all domain view by 10'),#http://localhost:8000/api/log1/?page=1
-
+    path('tt',TestAPIView.as_view())
     # path('register', RegisterView.as_view()),
     # path('login', LoginView.as_view()),
     # path('user', UserView.as_view()),
-    # path('logout', LogoutView.as_view()),
+    # path('logout', LogoutView.as_view())
 ]
