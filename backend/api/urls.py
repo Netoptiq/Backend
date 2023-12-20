@@ -7,7 +7,7 @@ urlpatterns = [
     path('blacklist/search/',BlacklistSearch.as_view(), name = 'dns exist or not'),
     path('blacklist/',BlockListPagenationAPIView.as_view(), name = 'GET or POST blocklist domains'),
     path('blacklist/<int:instance_id>/',BlockListPagenationAPIView.as_view(), name = 'GET or POST blocklist domains'),
-    path('report/',DNSLogReport.as_view(), name = 'Give all details between paticular date and time'),
+    # path('report/',DNSLogReport.as_view(), name = 'Give all details between paticular date and time'),
 
     path('parse/', PcapAnalysisold.as_view(), name='pcap analysis for all dest ip '),
 
@@ -25,6 +25,7 @@ urlpatterns = [
 
     path('blocklist1/',BlacklistView.as_view(), name = 'see all domain view+ add value in db'),
     path('log1/',LogView.as_view(), name = 'see all domain view'),
+    path('report/',DNSReport.as_view(), name = 'see all domain view'),
 
 
     # path('test/',Test.as_view()),

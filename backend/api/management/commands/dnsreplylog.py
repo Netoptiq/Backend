@@ -11,13 +11,8 @@ class Command(BaseCommand):
     help = 'Check and add DNS log entries to the database'
 
     def get_coordinates_from_ip(self, ip_address):
-        # Make a request to the ipinfo.io API
         response = requests.get(f"http://ipinfo.io/{ip_address}/json")
-    
-        # Parse the JSON response
         data = response.json()
-    
-        # Extract latitude and longitude from the response
         if "loc" in data:
             latitude, longitude = map(float, data["loc"].split(","))
             return latitude, longitude

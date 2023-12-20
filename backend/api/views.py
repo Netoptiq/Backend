@@ -1,4 +1,6 @@
 from django.shortcuts import render
+from django.db.models import Count, F, Sum
+from datetime import datetime, timedelta
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
@@ -17,8 +19,8 @@ import json
 from scapy.all import *
 
 
+
 # from collections import deque
-# from datetime import datetime, timedelta
 # from collections import Counter
 # from django.db.models import Count
 # from djangochannelsrestframework.generics import GenericAsyncAPIConsumer
@@ -236,6 +238,21 @@ class Domain_Reputation(APIView):
         return Response(response.json())
 
 class WhoisAPI(APIView):
+    def post(self,request):
+        domain = request.data.get('domain')
+        url = 'https://whoisjsonapi.com/v1/'+domain
+        headers = {
+            'Authorization': 'Bearer 2b2befac267da8539950afc6837f8cba0c09d630c1329faf3c40fa4e8fea4d2e'
+        }# TvL6oFeiLyV2cmRlvg8NTbAGUC2G0F34ns2NuGLHkmv8Li8vIs6yDz6dqxRHYxf
+        try:
+            response = requests.get(url, headers=headers)
+            response.raise_for_status()  # Raises an HTTPError for bad responses
+            data = response.json()
+            
+            return Response(data)
+        except requests.exceptions.RequestException as e:
+            return Response(e)
+    
     # Return Error response (Just for checking)
     # def post(self, request):    
     #     domain = request.data.get('domain')
@@ -262,20 +279,6 @@ class WhoisAPI(APIView):
 
     #         # Return an appropriate response to the client
     #         return Response({'error': 'An error occurred'}, status=status_code or 500)
-    def post(self,request):
-        domain = request.data.get('domain')
-        url = 'https://whoisjsonapi.com/v1/'+domain
-        headers = {
-            'Authorization': 'Bearer 2b2befac267da8539950afc6837f8cba0c09d630c1329faf3c40fa4e8fea4d2e'
-        }# TvL6oFeiLyV2cmRlvg8NTbAGUC2G0F34ns2NuGLHkmv8Li8vIs6yDz6dqxRHYxf
-        try:
-            response = requests.get(url, headers=headers)
-            response.raise_for_status()  # Raises an HTTPError for bad responses
-            data = response.json()
-            
-            return Response(data)
-        except requests.exceptions.RequestException as e:
-            return Response(e)
 
 
 class BlacklistView(APIView):
@@ -296,7 +299,10 @@ class BlacklistView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
-class DNSLogReport(APIView):
+
+
+
+class DNSReport(APIView):
     def post(self, request, *args, **kwargs):
         start_date_time = request.data.get('start_date_time')
         end_date_time = request.data.get('end_date_time')
@@ -306,10 +312,10 @@ class DNSLogReport(APIView):
                 {"error": "Please provide both start_date_time and end_date_time in the request data."},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        
+
         try:
-            start_date_time = timezone.datetime.fromisoformat(start_date_time)
-            end_date_time = timezone.datetime.fromisoformat(end_date_time)
+            start_date_time = datetime.fromisoformat(start_date_time)
+            end_date_time = datetime.fromisoformat(end_date_time)
         except ValueError:
             return Response(
                 {"error": "Invalid date-time format. Please provide dates in ISO 8601 format (YYYY-MM-DDTHH:MM:SS)."},
@@ -321,14 +327,36 @@ class DNSLogReport(APIView):
             date_time__lte=end_date_time
         )
 
-        serializer = DNSLogSerializer(logs, many=True)  # Use your serializer here
-        result= {
-            'total_query': logs.count(),
-            'query': serializer.data
-            
+        # Query for additional DNS server report details
+        query_details = logs.values('query_type').annotate(
+            total_queries=Count('query_type'),
+            average_query_time=Sum('query_time') / Count('query_time'),
+        )
+
+        # Your existing serializer
+        serializer = DNSLogSerializer(logs, many=True)
+
+        # Combine the results into the final JSON response
+        result = {
+            'total_queries': logs.count(),
+            'query_details': query_details,
+            'query_logs': serializer.data,
+            'dns_server_report': {
+                'query_statistics': {
+                    'total_queries': logs.count(),
+                    'query_types': logs.values('query_type').annotate(count=Count('query_type')).order_by('-count')
+                },
+                'latency_and_response_time': {
+                    'average_response_time': logs.aggregate(avg_response_time=Sum('query_time') / Count('query_time'))['avg_response_time'],
+                    # Add more latency metrics as needed
+                },
+                # Add more sections for traffic sources, security metrics, cache utilization, etc.
+            }
         }
+
         return Response(result, status=status.HTTP_200_OK)
-    
+
+
 
 class ZeekLogAnalysis(APIView):
     def post(self, request):
@@ -377,6 +405,78 @@ class DGADetechtedApi(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+
+
+
+
+
+
+
+
+# class DNSLogReport(APIView):
+#     # def post(self, request, *args, **kwargs):
+#     #     start_date_time = request.data.get('start_date_time')
+#     #     end_date_time = request.data.get('end_date_time')
+
+#     #     if not start_date_time or not end_date_time:
+#     #         return Response(
+#     #             {"error": "Please provide both start_date_time and end_date_time in the request data."},
+#     #             status=status.HTTP_400_BAD_REQUEST
+#     #         )
+        
+#     #     try:
+#     #         start_date_time = timezone.datetime.fromisoformat(start_date_time)
+#     #         end_date_time = timezone.datetime.fromisoformat(end_date_time)
+#     #     except ValueError:
+#     #         return Response(
+#     #             {"error": "Invalid date-time format. Please provide dates in ISO 8601 format (YYYY-MM-DDTHH:MM:SS)."},
+#     #             status=status.HTTP_400_BAD_REQUEST
+#     #         )
+
+#     #     logs = DNSLog.objects.filter(
+#     #         date_time__gte=start_date_time,
+#     #         date_time__lte=end_date_time
+#     #     )
+
+#     #     serializer = DNSLogSerializer(logs, many=True)  # Use your serializer here
+#     #     result= {
+#     #         'total_query': logs.count(),
+#     #         'query': serializer.data
+            
+#     #     }
+#     #     return Response(result, status=status.HTTP_200_OK)
+
+#     def post(self, request, *args, **kwargs):
+#         start_date_time = request.data.get('start_date_time')
+#         end_date_time = request.data.get('end_date_time')
+
+#         if not start_date_time or not end_date_time:
+#             return Response(
+#                 {"error": "Please provide both start_date_time and end_date_time in the request data."},
+#                 status=status.HTTP_400_BAD_REQUEST
+#             )
+        
+#         try:
+#             start_date_time = datetime.fromisoformat(start_date_time)
+#             end_date_time = datetime.fromisoformat(end_date_time)
+#         except ValueError:
+#             return Response(
+#                 {"error": "Invalid date-time format. Please provide dates in ISO 8601 format (YYYY-MM-DDTHH:MM:SS)."},
+#                 status=status.HTTP_400_BAD_REQUEST
+#             )
+
+#         logs = DNSLog.objects.filter(
+#             date_time__gte=start_date_time,
+#             date_time__lte=end_date_time
+#         )
+
+#         serializer = DNSLogSerializer(logs, many=True)  # Use your serializer here
+#         result = {
+#             'total_query': logs.count(),
+#             'query': serializer.data
+#         }
+#         return Response(result, status=status.HTTP_200_OK)
+    
 
 # class PcapAnalysis(APIView):#withoud domain
 #     def post(self, request):
