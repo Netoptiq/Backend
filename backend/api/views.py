@@ -49,7 +49,7 @@ class BlockListPagenationAPIView(APIView): #log with pagination
         result_page = paginator.paginate_queryset(logs, request)
         serializer = BlacklistSerializer(result_page, many=True)
         return paginator.get_paginated_response(serializer.data)
-    
+
     def post(self,request):
         domain = request.data.get('domain')
         if Blacklist.objects.filter(domain = domain):
@@ -63,38 +63,45 @@ class BlockListPagenationAPIView(APIView): #log with pagination
     
 
     def delete(self, request, instance_id, format=None):
-            entry = Blacklist.objects.get(pk=instance_id)
-            domain_to_delete = entry.domain
-            conf_file_path = '/home/bewin/Desktop/Projects/Backend-1/Sample/output.conf'
-            try:
-                with open(conf_file_path, 'r') as file:
-                    conf_content = file.readlines()
-                found = False
-                updated_conf_content = []
-                for line in conf_content:
-                    if domain_to_delete in line:
-                        found = True
-                        continue
-                    updated_conf_content.append(line)
+        try:
+                entry = Blacklist.objects.get(pk=instance_id)
+                domain_to_delete = entry.domain
+                # conf_file_path = '/home/bewin/Desktop/Projects/Backend-1/Sample/output.conf'
+                conf_file_path = '/etc/unbound/block.conf'
+                try:
+                    with open(conf_file_path, 'r') as file:
+                        conf_content = file.readlines()
+                    found = False
+                    updated_conf_content = []
+                    for line in conf_content:
+                        if domain_to_delete in line:
+                            found = True
+                            continue
+                        updated_conf_content.append(line)
 
-                if not found:
-                    return Response({"detail": f"The domain '{domain_to_delete}' does not exist in the conf file."}, status=status.HTTP_404_NOT_FOUND)
-                with open(conf_file_path, 'w') as file:
-                    file.writelines(updated_conf_content)
+                    if not found:
+                        return Response({"detail": f"The domain '{domain_to_delete}' does not exist in the conf file."}, status=status.HTTP_404_NOT_FOUND)
+                    with open(conf_file_path, 'w') as file:
+                        file.writelines(updated_conf_content)
 
-                return Response({"detail": f"Successfully deleted the domain '{domain_to_delete}' from the conf file."}, status=status.HTTP_200_OK)
-            except Exception as e:
-                return Response({"detail": f"An error occurred: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                    return Response({"detail": f"Successfully deleted the domain '{domain_to_delete}' from the conf file."}, status=status.HTTP_200_OK)
+                except Exception as e:
+                    return Response({"detail": f"An error occurred: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+        except Exception as e:
+            return Response('Not found')
 
 
 class BlacklistSearch(APIView):
     def post(self,request):
         domain = request.data.get('domain')
         data = Blacklist.objects.filter(domain=domain)
-        serializer = BlacklistSerializer(data, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        if data.exists():
 
-
+            serializer = BlacklistSerializer(data, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response('The domain name not in blacklist')
 
 
 class LogView(APIView): #domain visited
@@ -134,14 +141,15 @@ class PcapAnalysis(APIView):
                     'domain': '',
                     'takake_query': None,
                 }
-                print('sddd')
                 # Check for takake domain or blacklist match
-                if packet_info['dst'] != '' and (Blacklist.objects.filter(domain=packet_info['dst']).exists() or 'takake' in packet_info['dst']):
-                    packet_info['malware'] = True
+
 
                 if DNS in packet and packet.haslayer(DNSQR):
                     dns_name = packet[DNSQR].qname.decode('utf-8')
-                    packet_info['domain'] = dns_name
+                    packet_info['domain'] = dns_name[:-1]
+
+                if Blacklist.objects.filter(domain=packet_info['domain']).exists():
+                    packet_info['malware'] = True
 
                 # Protocol and port information
                 if packet.haslayer(TCP):
@@ -186,7 +194,7 @@ class PcapAnalysisold(APIView):#pcap analysis
                 'len': packet_len,
                 'malware': False,
             }
-            if packet_info['dst'] !='' and Blacklist.objects.filter(domain=packet_info['dst']).exists():
+            if Blacklist.objects.filter(domain=packet_info['dst']).exists():
                 packet_info['malware'] = True
             if packet.haslayer(TCP):
                 packet_info['proto'] = 'TCP'
@@ -317,6 +325,14 @@ class ZeekLogAnalysis(APIView):
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     
+class StixTaxi(APIView):
+    def post(self, request):
+        domain = request.data.get('domain')
+        
+
+        return Response(domain, status=status.HTTP_200_OK)
+
+
 
 
 

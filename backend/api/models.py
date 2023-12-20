@@ -23,8 +23,8 @@ class DNSLog(models.Model):
         return f"{self.date_time} - {self.process_name} - {self.domain_name}"
 
 
-file_path = '/home/bewin/Projects/Backend-1/Sample/blacklist.conf'
-# file_path = '/etc/unbound/block.conf'
+# file_path = '/home/bewin/Projects/Backend-1/Sample/blacklist.conf'
+file_path = '/etc/unbound/block.conf'
 
 class Blacklist(models.Model):
     domain = models.CharField(max_length=200)
@@ -34,8 +34,9 @@ class Blacklist(models.Model):
             try:
                 print(self.domain)
                 fcntl.flock(file, fcntl.LOCK_EX)
-                file.write(f'local-zone: "{self.domain}" redirect\n')
-                file.write(f'local-data: "{self.domain} A 0.0.0.0"\n')
+                file.write(f'local-zone: "{self.domain}" refuse\n')
+                # file.write(f'local-zone: "{self.domain}" redirect\n')
+                # file.write(f'local-data: "{self.domain} A 0.0.0.0"\n')
             finally:
                 fcntl.flock(file, fcntl.LOCK_UN)
         super().save(*args, **kwargs)
