@@ -434,7 +434,7 @@ class ThreatIntelView(APIView):
 
 
 from django.core.management import call_command
-call_command('tes')
+call_command('logparse')
 
 # class DNSLogReport(APIView):
 #     # def post(self, request, *args, **kwargs):
