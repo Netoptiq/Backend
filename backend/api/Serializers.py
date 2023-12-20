@@ -18,6 +18,13 @@ class BlacklistSerializer(serializers.ModelSerializer):
         model = Blacklist
         fields = '__all__'
 
+
+
+class DGADetechtedSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DGADetechted
+        fields = '__all__'
+
 class LocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = DNSLog

@@ -44,7 +44,8 @@ class Blacklist(models.Model):
 
 
 
-
+class DGADetechted(models.Model):
+    domain = models.CharField(max_length=200)
 
 
 
