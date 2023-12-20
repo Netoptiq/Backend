@@ -111,12 +111,10 @@ class LogView(APIView): #domain visited
         return Response(serializer.data, status=status.HTTP_200_OK)
     
 class LocationAPI(APIView): #domain visited
-    def get(self, request, format=None):
-        dns_logs = DNSLog.objects.all()
-        serializer = DNSLogSerializer(dns_logs, many=True)
-        data = serializer.data
-        result = [{'ip_address': entry['ip_address'], 'domain_name': entry['domain_name']} for entry in data]
-        return Response(result)
+    def get(self, request, *args, **kwargs):
+        queryset = DNSLog.objects.all()
+        serializer = LocationSerializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 
@@ -325,7 +323,9 @@ class DNSLogReport(APIView):
 
         serializer = DNSLogSerializer(logs, many=True)  # Use your serializer here
         result= {
+            'total_query': logs.count(),
             'query': serializer.data
+            
         }
         return Response(result, status=status.HTTP_200_OK)
     

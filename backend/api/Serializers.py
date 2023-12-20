@@ -28,7 +28,7 @@ class DGADetechtedSerializer(serializers.ModelSerializer):
 class LocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = DNSLog
-        fields = ('ip_address','domain_name')
+        fields = ('ip_address','domain_name', 'latitude','longitude')
 
 
 # class QuerySerializer(serializers.ModelSerializer):
