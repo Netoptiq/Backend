@@ -1,26 +1,36 @@
-import requests
+from taxii2client import Server, Collection
 
-def fetch_threat_intel(api_key, limit=10):
-    url = f'https://otx.alienvault.com/api/v1/indicators/IPv4/?limit={limit}'
+def fetch_threat_intelligence(taxii_server_url, collection_id):
+    # Create a TAXII server object
+    server = Server(taxii_server_url)
 
-    headers = {
-        'Content-Type': 'application/json',
-        'X-OTX-API-KEY': api_key,
-    }
+    try:
+        # Discover available collections on the TAXII server
+        collections = server.collections
 
-    response = requests.get(url, headers=headers)
+        # Find the collection by ID
+        collection = next((c for c in collections if c.id == collection_id), None)
 
-    if response.status_code == 200:
-        threat_intel_data = response.json()
-        return threat_intel_data['indicators']
-    else:
-        print(f"Error fetching threat intelligence: {response.status_code}")
-        return None
+        if collection:
+            # Fetch STIX content from the specified collection
+            objects = collection.get_objects()
 
-# Example usage:
-otx_api_key = '3d4f925f687e1722d4243bdfee5f69071d1aca2a149511171220c73f57260789'
-threat_intel_data = fetch_threat_intel(otx_api_key)
+            # Process the result
+            for stix_object in objects:
+                stix_data = stix_object.serialize(pretty=True)
+                print(f"STIX Data:\n{stix_data}\n")
+        else:
+            print(f"Collection with ID '{collection_id}' not found.")
 
-if threat_intel_data:
-    for indicator in threat_intel_data:
-        print(f"Indicator: {indicator['indicator']}, Type: {indicator['type']}")
+    except Exception as e:
+        print(f"Error: {e}")
+
+if __name__ == "__main__":
+    # Specify the TAXII server URL
+    taxii_server_url = 'https://your.taxii.server.com/taxii/'
+
+    # Specify the collection ID you want to query
+    collection_id = 'your_collection'
+
+    # Fetch threat intelligence from the TAXII server
+    fetch_threat_intelligence(taxii_server_url, collection_id)
