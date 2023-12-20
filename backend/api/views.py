@@ -238,20 +238,45 @@ class Domain_Reputation(APIView):
         return Response(response.json())
 
 class WhoisAPI(APIView):
-    def post(self,request):
+    def post(self, request):
         domain = request.data.get('domain')
-        url = 'https://whoisjsonapi.com/v1/'+domain
+        url = 'https://whoisjsonapi.com/v1/' + domain
         headers = {
-            'Authorization': 'Bearer TvL6oFeiLyV2cmRlvg8NTbAGUC2G0F34ns2NuGLHkmv8Li8vIs6yDz6dqxRHYxf'
-        }
+            'Authorization': 'Bearer SkuV8uHXRMxfA7vTYATGpwIE2zyDPDh8OBIZo5k-hSIxBYGNHxU6mx5y_9o7Ycm'
+
+        }#TvL6oFeiLyV2cmRlvg8NTbAGUC2G0F34ns2NuGLHkmv8Li8vIs6yDz6dqxRHYxf
+
         try:
             response = requests.get(url, headers=headers)
             response.raise_for_status()  # Raises an HTTPError for bad responses
             data = response.json()
-            
             return Response(data)
         except requests.exceptions.RequestException as e:
-            return Response(e)
+            # Extract information from the exception
+            error_message = str(e)
+            status_code = getattr(e.response, 'status_code', None)
+            response_content = getattr(e.response, 'text', None)
+
+            # Print or log the error details
+            print(f'HTTP error occurred: {status_code} - {error_message}')
+            print(f'Response content: {response_content}')
+
+            # Return an appropriate response to the client
+            return Response({'error': 'An error occurred'}, status=status_code or 500)
+    # def post(self,request):
+    #     domain = request.data.get('domain')
+    #     url = 'https://whoisjsonapi.com/v1/'+domain
+    #     headers = {
+    #         'Authorization': 'Bearer 2b2befac267da8539950afc6837f8cba0c09d630c1329faf3c40fa4e8fea4d2e'
+    #     }# TvL6oFeiLyV2cmRlvg8NTbAGUC2G0F34ns2NuGLHkmv8Li8vIs6yDz6dqxRHYxf
+    #     try:
+    #         response = requests.get(url, headers=headers)
+    #         response.raise_for_status()  # Raises an HTTPError for bad responses
+    #         data = response.json()
+            
+    #         return Response(data)
+    #     except requests.exceptions.RequestException as e:
+    #         return Response(e)
 
 
 class BlacklistView(APIView):

@@ -10,6 +10,7 @@ urlpatterns = [
     path('report/',DNSLogReport.as_view(), name = 'Give all details between paticular date and time'),
 
     path('parse/', PcapAnalysisold.as_view(), name='pcap analysis for all dest ip '),
+    
     path('domain/',Domain_data.as_view(), name = 'Virus toal'),
     path('whois/',WhoisAPI.as_view(), name = 'who is'),
     path('rdomain/',Domain_Reputation.as_view(), name = 'api void'),
