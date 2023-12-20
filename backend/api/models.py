@@ -50,9 +50,8 @@ class DGADetechted(models.Model):
 
 
 
-class ThreatIntel(models.Model):
-    indicator = models.CharField(max_length=255)
-    threat_level = models.CharField(max_length=50)
+class Test(models.Model):
+    domain = models.CharField(max_length=200)
 
 # from django.contrib.auth.models import AbstractUser
 

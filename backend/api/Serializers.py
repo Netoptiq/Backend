@@ -1,10 +1,7 @@
 from rest_framework import serializers
 from .models import *
 
-class ThreatIntelSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ThreatIntel
-        fields = '__all__'
+
 
 
 
@@ -20,7 +17,10 @@ class BlacklistSerializer(serializers.ModelSerializer):
         model = Blacklist
         fields = '__all__'
 
-
+class TestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Test
+        fields = '__all__'
 
 class DGADetechtedSerializer(serializers.ModelSerializer):
     class Meta:

@@ -402,39 +402,24 @@ class DGADetechtedApi(APIView):
         domain = request.data.get('domain')
         data = DGADetechted.objects.filter(domain=domain)
         serializer = DGADetechtedSerializer(data, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response('Invalid Input', status=status.HTTP_200_OK)
+
+
+class Test(APIView):
+    def post(self, request):
+        domain = request.data.get('domain')
+        data = Test.objects.filter(domain=domain)
+        serializer = TestSerializer(data, many=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response('Invalid Input', status=status.HTTP_200_OK)
 
 
 
-
-# views.py
-from cabby import create_client
-
-class ThreatIntelView(APIView):
-    def get(self, request):
-        taxii_server = 'https://example.com/taxii-endpoint'
-        client = create_client(taxii_server)
-
-        # Replace 'collection_id' with the actual collection ID you want to query
-        collection_id = 'your_collection_id'
-        content_blocks = client.poll(collection_id)
-
-        for block in content_blocks:
-            indicator = block.indicator
-            threat_level = block.confidence.value  # Adjust based on actual block structure
-
-            ThreatIntel.objects.get_or_create(indicator=indicator, threat_level=threat_level)
-
-        threat_intel_data = ThreatIntel.objects.all()
-        serializer = ThreatIntelSerializer(threat_intel_data, many=True)
-
-        return Response(serializer.data)
-
-
-
-
-from django.core.management import call_command
-call_command('logparse')
 
 # class DNSLogReport(APIView):
 #     # def post(self, request, *args, **kwargs):

@@ -27,6 +27,9 @@ urlpatterns = [
     path('log1/',LogView.as_view(), name = 'see all domain view'),
     path('report/',DNSReport.as_view(), name = 'see all domain view'),
 
+    path('th/',Test.as_view(), name = 'see all domain view'),
+
+
 
     # path('test/',Test.as_view()),
     # path('tquery/',Total_query.as_view()),
