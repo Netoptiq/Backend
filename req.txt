@@ -11,3 +11,4 @@ psycopg2-binary
 pandas
 django-extensions
 djangorestframework_simplejwt
+cabby

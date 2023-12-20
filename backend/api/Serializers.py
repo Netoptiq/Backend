@@ -1,8 +1,10 @@
 from rest_framework import serializers
 from .models import *
 
-
-
+class ThreatIntelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ThreatIntel
+        fields = '__all__'
 
 
 

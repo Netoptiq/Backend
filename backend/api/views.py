@@ -407,6 +407,28 @@ class DGADetechtedApi(APIView):
 
 
 
+# views.py
+from cabby import create_client
+
+class ThreatIntelView(APIView):
+    def get(self, request):
+        taxii_server = 'https://example.com/taxii-endpoint'
+        client = create_client(taxii_server)
+
+        # Replace 'collection_id' with the actual collection ID you want to query
+        collection_id = 'your_collection_id'
+        content_blocks = client.poll(collection_id)
+
+        for block in content_blocks:
+            indicator = block.indicator
+            threat_level = block.confidence.value  # Adjust based on actual block structure
+
+            ThreatIntel.objects.get_or_create(indicator=indicator, threat_level=threat_level)
+
+        threat_intel_data = ThreatIntel.objects.all()
+        serializer = ThreatIntelSerializer(threat_intel_data, many=True)
+
+        return Response(serializer.data)
 
 
 
